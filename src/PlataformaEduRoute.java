@@ -61,6 +61,7 @@ public class PlataformaEduRoute{
     public PlataformaEduRoute() {
         inicializarGestores();
         cargarDatosPrecargados();
+        configurarListeners();
     }
         private void inicializarGestores() {
             gestorEst = new GestionEstudiantes();
@@ -232,48 +233,89 @@ public class PlataformaEduRoute{
         gestorAsign.asignarRutaAEstudiante("E008", "4", "Chimbacalle");
     }
 
-
+    private void configurarListeners(){
         btnRegistrarEstudiante.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String idEst = txtIdEstudiante.getText().trim();
-                if (idEst.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese una ID valida.");
-                    txtIdEstudiante.requestFocus();
-                    return;}
-
-                String nombre = txtIdEstudiante.getText().trim();
-                if (nombre.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre valido.");
-                    txtIdEstudiante.requestFocus();
-                    return;
-                }
-
-                String curso = txtCurso.getText().trim();
-                if (nombre.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese un curso valido.");
-                    txtIdEstudiante.requestFocus();
-                    return;
-                }
-
-                String direccion = txtDireccion.getText().trim();
-                if (nombre.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese una direccion valida.");
-                    txtDireccion.requestFocus();
-                    return;
-                }
-
-                String prioridad =(cbPrioridad.getSelectedItem() != null)
-                        ? cbPrioridad.getSelectedItem().toString()
-                        : "";
-                if (prioridad.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Seleccione prioridad.");
-                    cbPrioridad.requestFocus();
-                    return;
-                }
+                registrarEstudiante();
             }
         });
+
+        btnEliminarEstudiante.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                eliminarEstudiante();
+            }
+        });
+
+        btnModificarEstudiante.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                eliminarEstudiante();
+            }
+        });
+
+        btnLimpiarEstudiante.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                eliminarEstudiante();
+            }
+        });
+
     }
+
+    private void registrarEstudiante(){
+        String idEst = txtIdEstudiante.getText().trim();
+        if (idEst.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese una ID valida.");
+            txtIdEstudiante.requestFocus();
+            return;}
+
+        String nombre = txtIdEstudiante.getText().trim();
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre valido.");
+            txtIdEstudiante.requestFocus();
+            return;
+        }
+
+        String curso = txtCurso.getText().trim();
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese un curso valido.");
+            txtIdEstudiante.requestFocus();
+            return;
+        }
+
+        String direccion = txtDireccion.getText().trim();
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese una direccion valida.");
+            txtDireccion.requestFocus();
+            return;
+        }
+
+        String prioridad =(cbPrioridad.getSelectedItem() != null)
+                ? cbPrioridad.getSelectedItem().toString()
+                : "";
+        if (prioridad.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Seleccione prioridad.");
+            cbPrioridad.requestFocus();
+            return;
+        }
+    }
+
+    private void eliminarEstudiante(){
+        String idEst = txtIdEstudiante.getText().trim();
+        
+
+
+    }
+
+    private void limpiarEstudiante(){
+
+    }
+}
+
+
+
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("PlataformaEduRoute");
