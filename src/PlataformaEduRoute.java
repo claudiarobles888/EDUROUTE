@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class PlataformaEduRoute{
     private JPanel Ventana;
@@ -46,7 +47,16 @@ public class PlataformaEduRoute{
     private JComboBox comboBox6;
     private JComboBox comboBox7;
     private JCheckBox checkBox1;
-    private JButton button1;
+    private JButton btnIniciarRecorrido;
+    private JButton pausarButton;
+    private JButton finalizarButton;
+
+    private GestionEstudiantes gestorEst;
+    private GestionParadas gestorPar;
+    private GestionRutas gestorRut;
+    private GestionAsignacion gestorAsign;
+    private List<Bus> buses;
+    private List<Conductor>  conductores;
 
     public PlataformaEduRoute(){
 
@@ -57,4 +67,13 @@ public class PlataformaEduRoute{
             }
         });
     }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("PlataformaEduRoute");
+        frame.setContentPane(new PlataformaEduRoute().Ventana);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
 }
+
