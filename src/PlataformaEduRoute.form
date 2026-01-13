@@ -425,7 +425,7 @@
               </component>
             </children>
           </grid>
-          <grid id="f8c12" layout-manager="GridLayoutManager" row-count="10" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="f8c12" layout-manager="GridLayoutManager" row-count="11" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Buses y Conductores"/>
@@ -443,7 +443,7 @@
               </component>
               <vspacer id="7527">
                 <constraints>
-                  <grid row="9" column="0" row-span="1" col-span="6" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="10" column="0" row-span="1" col-span="6" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="e0e1a" class="javax.swing.JLabel">
@@ -638,9 +638,25 @@
                 </constraints>
                 <properties/>
               </component>
+              <component id="bb7df" class="javax.swing.JButton" binding="button1" default-binding="true">
+                <constraints>
+                  <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Asignar"/>
+                </properties>
+              </component>
+              <component id="a41e1" class="javax.swing.JButton" binding="button2" default-binding="true">
+                <constraints>
+                  <grid row="9" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Liberar"/>
+                </properties>
+              </component>
             </children>
           </grid>
-          <grid id="75e57" layout-manager="GridLayoutManager" row-count="8" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="75e57" layout-manager="GridLayoutManager" row-count="9" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Simulacion de recorridos"/>
@@ -658,7 +674,7 @@
               </component>
               <vspacer id="1f2ef">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="5" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="5" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="6a5e0" class="javax.swing.JLabel">
@@ -693,7 +709,7 @@
                   <text value="Ruta"/>
                 </properties>
               </component>
-              <component id="c98e9" class="javax.swing.JComboBox" binding="comboBox3" default-binding="true">
+              <component id="c98e9" class="javax.swing.JComboBox" binding="cbRutaRecorrido">
                 <constraints>
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -715,7 +731,7 @@
                   <text value="Tipo de Recorrido"/>
                 </properties>
               </component>
-              <component id="279b4" class="javax.swing.JComboBox" binding="comboBox4" default-binding="true">
+              <component id="279b4" class="javax.swing.JComboBox" binding="cbChoferRecorrido">
                 <constraints>
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -723,7 +739,7 @@
                   <model/>
                 </properties>
               </component>
-              <component id="e0242" class="javax.swing.JComboBox" binding="comboBox5" default-binding="true">
+              <component id="e0242" class="javax.swing.JComboBox" binding="cbTipoRecorrido">
                 <constraints>
                   <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -753,13 +769,13 @@
                   <text value="Fecha"/>
                 </properties>
               </component>
-              <component id="ff79a" class="javax.swing.JComboBox" binding="comboBox6" default-binding="true">
+              <component id="ff79a" class="javax.swing.JComboBox" binding="cbBusRecorrido">
                 <constraints>
                   <grid row="1" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
-              <component id="2149" class="javax.swing.JComboBox" binding="comboBox7" default-binding="true">
+              <component id="2149" class="javax.swing.JComboBox" binding="cbReemplazoRecorrido">
                 <constraints>
                   <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -789,7 +805,7 @@
                   <text value="Iniciar Recorrido"/>
                 </properties>
               </component>
-              <component id="455ef" class="javax.swing.JButton" binding="pausarButton" default-binding="true">
+              <component id="455ef" class="javax.swing.JButton" binding="btnPausar">
                 <constraints>
                   <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -797,7 +813,7 @@
                   <text value="Pausar"/>
                 </properties>
               </component>
-              <component id="e492f" class="javax.swing.JButton" binding="finalizarButton" default-binding="true">
+              <component id="e492f" class="javax.swing.JButton" binding="btnFinalizar">
                 <constraints>
                   <grid row="5" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -805,9 +821,18 @@
                   <text value="Finalizar"/>
                 </properties>
               </component>
+              <grid id="17aaa" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children/>
+              </grid>
             </children>
           </grid>
-          <grid id="17aaa" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="1d0c3" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Reportes y Estadisticas"/>
@@ -816,7 +841,7 @@
             <border type="none"/>
             <children/>
           </grid>
-          <grid id="6ae20" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="6ae20" layout-manager="GridLayoutManager" row-count="9" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Optimizacion de rutas"/>
@@ -826,7 +851,7 @@
             <children>
               <component id="8ff3b" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="OPTIMIZACION CON ALGORITMO DE DIJKSTRA"/>
@@ -834,9 +859,85 @@
               </component>
               <vspacer id="ef56">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
+              <component id="ee955" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Ruta a Optimizar"/>
+                </properties>
+              </component>
+              <component id="36113" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Criterio"/>
+                </properties>
+              </component>
+              <component id="f3aa5" class="javax.swing.JComboBox" binding="cbRutaOptimizar">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="c4507" class="javax.swing.JCheckBox" binding="chkConsiderarAusencias">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Considerar estudiantes ausentes"/>
+                </properties>
+              </component>
+              <component id="89eed" class="javax.swing.JButton" binding="btnCalcularRutaOptima">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Calcular Ruta Optima"/>
+                </properties>
+              </component>
+              <component id="5995c" class="javax.swing.JComboBox" binding="cbCrietrioOptimizacion">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="96ff0" class="javax.swing.JButton" binding="btnCompararRutas">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Comparar Ruta Actual vs Optima"/>
+                </properties>
+              </component>
+              <component id="1df84" class="javax.swing.JButton" binding="btnAplicarOptimizacion">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Aplicar Optimizacion"/>
+                </properties>
+              </component>
+              <component id="20ee0" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="RUTA ACTUAL"/>
+                </properties>
+              </component>
+              <component id="456bc" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="RUTA OPTIMIZADA"/>
+                </properties>
+              </component>
             </children>
           </grid>
         </children>
