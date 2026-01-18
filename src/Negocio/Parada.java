@@ -1,3 +1,5 @@
+package Negocio;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +62,7 @@ private List<Estudiante> estudiantes;
 
     @Override
     public String toString() {
-        return "Parada" +
+        return "Negocio.Parada" +
                 "\nidParada=" + idParada +
                 "\nnombreParada=" + nombreParada +
                 "\ntiempoEstimado=" + tiempoEstimado +

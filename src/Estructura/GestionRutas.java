@@ -1,3 +1,9 @@
+package Estructura;
+
+import Negocio.Estudiante;
+import Negocio.Parada;
+import Negocio.Ruta;
+
 import java.util.ArrayList;
 import java.util.List;
 

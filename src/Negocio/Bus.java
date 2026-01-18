@@ -1,3 +1,5 @@
+package Negocio;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +83,7 @@ public class Bus {
 
     @Override
     public String toString(){
-        return "Bus{" +placa+", id="+idBus+", ocupado="+estudiantes.size()+"}";
+        return "Negocio.Bus{" +placa+", id="+idBus+", ocupado="+estudiantes.size()+"}";
     }
 
 }

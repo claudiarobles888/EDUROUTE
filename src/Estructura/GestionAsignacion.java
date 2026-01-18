@@ -1,3 +1,9 @@
+package Estructura;
+
+import Negocio.Estudiante;
+import Negocio.Parada;
+import Negocio.Ruta;
+
 public class GestionAsignacion {
     private GestionEstudiantes gestionEstudiantes;
     private GestionParadas gestionParadas;

@@ -1,3 +1,9 @@
+import Estructura.GestionAsignacion;
+import Estructura.GestionEstudiantes;
+import Estructura.GestionParadas;
+import Estructura.GestionRutas;
+import Negocio.*;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -105,8 +111,8 @@ public class PlataformaEduRoute {
     }
 
     private void cargarRutasPrecargadas() {
-        // Ruta 1 - Norte
-        Ruta ruta1 = new Ruta("R001", "Ruta Norte", "1", "Norte",
+        // Negocio.Ruta 1 - Norte
+        Ruta ruta1 = new Ruta("R001", "Negocio.Ruta Norte", "1", "Norte",
                 Arrays.asList("Carcelén", "Ponceano", "El Condado", "La Ofelia", "Cotocollao"));
         Parada p1_1 = new Parada("P001", "Carcelén Centro", 5, "Av. Eloy Alfaro y Carcelén");
         Parada p1_2 = new Parada("P002", "Ponceano Alto", 8, "Calle Principal Ponceano");
@@ -119,8 +125,8 @@ public class PlataformaEduRoute {
         gestorPar.registrarParada(p1_3);
         gestorRut.registrarRuta(ruta1);
 
-        // Ruta 2 - Centro-Norte
-        Ruta ruta2 = new Ruta("R002", "Ruta Centro-Norte", "2", "Centro-Norte",
+        // Negocio.Ruta 2 - Centro-Norte
+        Ruta ruta2 = new Ruta("R002", "Negocio.Ruta Centro-Norte", "2", "Centro-Norte",
                 Arrays.asList("La Gasca", "Bellavista", "Iñaquito", "El Batán", "González Suárez"));
         Parada p2_1 = new Parada("P004", "La Gasca", 6, "Av. La Gasca y América");
         Parada p2_2 = new Parada("P005", "Iñaquito", 7, "Av. Naciones Unidas y Iñaquito");
@@ -130,8 +136,8 @@ public class PlataformaEduRoute {
         gestorPar.registrarParada(p2_2);
         gestorRut.registrarRuta(ruta2);
 
-        // Ruta 3 - Centro
-        Ruta ruta3 = new Ruta("R003", "Ruta Centro", "3", "Centro",
+        // Negocio.Ruta 3 - Centro
+        Ruta ruta3 = new Ruta("R003", "Negocio.Ruta Centro", "3", "Centro",
                 Arrays.asList("La Marín", "San Blas", "La Tola", "Itchimbía", "San Roque"));
         Parada p3_1 = new Parada("P006", "La Marín", 5, "Plaza La Marín");
         Parada p3_2 = new Parada("P007", "San Blas", 8, "Barrio San Blas");
@@ -141,8 +147,8 @@ public class PlataformaEduRoute {
         gestorPar.registrarParada(p3_2);
         gestorRut.registrarRuta(ruta3);
 
-        // Ruta 4 - Sur
-        Ruta ruta4 = new Ruta("R004", "Ruta Sur", "4", "Sur",
+        // Negocio.Ruta 4 - Sur
+        Ruta ruta4 = new Ruta("R004", "Negocio.Ruta Sur", "4", "Sur",
                 Arrays.asList("Chimbacalle", "El Recreo", "La Magdalena", "Quitumbe", "Guamaní"));
         Parada p4_1 = new Parada("P008", "Chimbacalle", 7, "Av. Maldonado y Chimbacalle");
         Parada p4_2 = new Parada("P009", "El Recreo", 10, "Estación El Recreo");
@@ -152,8 +158,8 @@ public class PlataformaEduRoute {
         gestorPar.registrarParada(p4_2);
         gestorRut.registrarRuta(ruta4);
 
-        // Ruta 5 - Valle de los Chillos
-        Ruta ruta5 = new Ruta("R005", "Ruta Valle Chillos", "5", "Valle de los Chillos",
+        // Negocio.Ruta 5 - Valle de los Chillos
+        Ruta ruta5 = new Ruta("R005", "Negocio.Ruta Valle Chillos", "5", "Valle de los Chillos",
                 Arrays.asList("Conocoto", "San Rafael", "Alangasí"));
         Parada p5_1 = new Parada("P010", "Conocoto", 12, "Plaza Conocoto");
         Parada p5_2 = new Parada("P011", "San Rafael", 15, "Centro San Rafael");
@@ -163,8 +169,8 @@ public class PlataformaEduRoute {
         gestorPar.registrarParada(p5_2);
         gestorRut.registrarRuta(ruta5);
 
-        // Ruta 6 - Valle de Tumbaco
-        Ruta ruta6 = new Ruta("R006", "Ruta Valle Tumbaco", "6", "Valle de Tumbaco",
+        // Negocio.Ruta 6 - Valle de Tumbaco
+        Ruta ruta6 = new Ruta("R006", "Negocio.Ruta Valle Tumbaco", "6", "Valle de Tumbaco",
                 Arrays.asList("Cumbayá", "Tumbaco", "Puembo"));
         Parada p6_1 = new Parada("P012", "Cumbayá", 10, "Plaza Cumbayá");
         Parada p6_2 = new Parada("P013", "Tumbaco", 13, "Centro Tumbaco");
@@ -174,8 +180,8 @@ public class PlataformaEduRoute {
         gestorPar.registrarParada(p6_2);
         gestorRut.registrarRuta(ruta6);
 
-        // Ruta 7 - Noroeste
-        Ruta ruta7 = new Ruta("R007", "Ruta Noroeste", "7", "Noroeste",
+        // Negocio.Ruta 7 - Noroeste
+        Ruta ruta7 = new Ruta("R007", "Negocio.Ruta Noroeste", "7", "Noroeste",
                 Arrays.asList("Pomasqui", "San Antonio de Pichincha", "Calderón"));
         Parada p7_1 = new Parada("P014", "Pomasqui", 18, "Centro Pomasqui");
         Parada p7_2 = new Parada("P015", "Calderón", 15, "Plaza Calderón");
@@ -185,8 +191,8 @@ public class PlataformaEduRoute {
         gestorPar.registrarParada(p7_2);
         gestorRut.registrarRuta(ruta7);
 
-        // Ruta 8 - Suroriental
-        Ruta ruta8 = new Ruta("R008", "Ruta Suroriental", "8", "Suroriental",
+        // Negocio.Ruta 8 - Suroriental
+        Ruta ruta8 = new Ruta("R008", "Negocio.Ruta Suroriental", "8", "Suroriental",
                 Arrays.asList("Amaguaña", "Alóag", "Tambillo"));
         Parada p8_1 = new Parada("P016", "Amaguaña", 20, "Centro Amaguaña");
         Parada p8_2 = new Parada("P017", "Tambillo", 22, "Plaza Tambillo");
@@ -410,7 +416,7 @@ public class PlataformaEduRoute {
 
         Estudiante estudiante = gestorEst.buscarPorId(idEst);
         if (estudiante == null) {
-            JOptionPane.showMessageDialog(Ventana, "Estudiante no encontrado.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante no encontrado.");
             return;
         }
 
@@ -421,7 +427,7 @@ public class PlataformaEduRoute {
         if (respuesta == JOptionPane.YES_OPTION) {
             boolean eliminado = gestorEst.eliminarEstudiante(idEst);
             if (eliminado) {
-                JOptionPane.showMessageDialog(Ventana, "Estudiante eliminado correctamente.");
+                JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante eliminado correctamente.");
                 limpiarEstudiante();
             } else {
                 JOptionPane.showMessageDialog(Ventana, "Hubo un problema al eliminar el estudiante.");
@@ -451,7 +457,7 @@ public class PlataformaEduRoute {
 
             boolean actualizado = gestorEst.actualizarEstudiante(idEstudiante, nuevoNombre, nuevoCurso, nuevaDireccion, nuevaPrioridad);
             if (actualizado) {
-                JOptionPane.showMessageDialog(Ventana, "Estudiante modificado correctamente.");
+                JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante modificado correctamente.");
             } else {
                 JOptionPane.showMessageDialog(Ventana, "Hubo un error al modificar el estudiante.");
             }
@@ -481,7 +487,7 @@ public class PlataformaEduRoute {
 
         Estudiante estudiante = gestorEst.buscarPorId(idEst);
         if (estudiante == null) {
-            JOptionPane.showMessageDialog(Ventana, "Estudiante no encontrado.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante no encontrado.");
             limpiarEstudiante();
         } else {
             txtNombreEstudiante.setText(estudiante.getNombre());
@@ -522,7 +528,7 @@ public class PlataformaEduRoute {
 
         Parada nuevaParada = new Parada(idParada, nombreParada, tiempoEstimado, ubicacion);
         gestorPar.registrarParada(nuevaParada);
-        JOptionPane.showMessageDialog(Ventana, "Parada registrada con éxito.");
+        JOptionPane.showMessageDialog(Ventana, "Negocio.Parada registrada con éxito.");
         limpiarParada();
     }
 
@@ -539,14 +545,14 @@ public class PlataformaEduRoute {
 
         Parada parada = gestorPar.buscarPorId(idParada);
         if (parada == null) {
-            JOptionPane.showMessageDialog(Ventana, "Parada no encontrada.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Parada no encontrada.");
             return;
         }
 
         int confirmacion = JOptionPane.showConfirmDialog(Ventana, "¿Está seguro de eliminar esta parada?");
         if (confirmacion == JOptionPane.YES_OPTION) {
             gestorPar.eliminarParada(idParada);
-            JOptionPane.showMessageDialog(Ventana, "Parada eliminada con éxito.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Parada eliminada con éxito.");
             limpiarParada();
         }
     }
@@ -579,7 +585,7 @@ public class PlataformaEduRoute {
             bus.marcarNoDisponible();
         }
 
-        JOptionPane.showMessageDialog(Ventana, "Bus registrado exitosamente.");
+        JOptionPane.showMessageDialog(Ventana, "Negocio.Bus registrado exitosamente.");
         limpiarCamposBus();
     }
 
@@ -601,10 +607,10 @@ public class PlataformaEduRoute {
 
         if (busAEliminar != null) {
             buses.remove(busAEliminar);
-            JOptionPane.showMessageDialog(Ventana, "Bus eliminado exitosamente.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Bus eliminado exitosamente.");
             limpiarCamposBus();
         } else {
-            JOptionPane.showMessageDialog(Ventana, "Bus no encontrado.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Bus no encontrado.");
         }
     }
 
@@ -628,7 +634,7 @@ public class PlataformaEduRoute {
         Conductor conductor = new Conductor(idConductor, nombreConductor);
         conductores.add(conductor);
 
-        JOptionPane.showMessageDialog(Ventana, "Conductor registrado exitosamente.");
+        JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor registrado exitosamente.");
         limpiarCamposConductor();
     }
 
@@ -650,10 +656,10 @@ public class PlataformaEduRoute {
 
         if (conductorAEliminar != null) {
             conductores.remove(conductorAEliminar);
-            JOptionPane.showMessageDialog(Ventana, "Conductor eliminado exitosamente.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor eliminado exitosamente.");
             limpiarCamposConductor();
         } else {
-            JOptionPane.showMessageDialog(Ventana, "Conductor no encontrado.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor no encontrado.");
         }
     }
 
@@ -691,7 +697,7 @@ public class PlataformaEduRoute {
 
         if (busAsignado != null && conductorAsignado != null) {
             if (busAsignado.asignarConductor(conductorAsignado)) {
-                JOptionPane.showMessageDialog(Ventana, "Conductor asignado al bus exitosamente.");
+                JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor asignado al bus exitosamente.");
             } else {
                 JOptionPane.showMessageDialog(Ventana, "El bus ya tiene dos conductores asignados.");
             }
@@ -730,7 +736,7 @@ public class PlataformaEduRoute {
             List<Conductor> conductoresBus = busAsignado.listarConductores();
             if (conductoresBus.contains(conductorAsignado)) {
                 conductoresBus.remove(conductorAsignado);
-                JOptionPane.showMessageDialog(Ventana, "Conductor liberado del bus exitosamente.");
+                JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor liberado del bus exitosamente.");
             } else {
                 JOptionPane.showMessageDialog(Ventana, "El conductor no está asignado a este bus.");
             }
@@ -769,7 +775,7 @@ public class PlataformaEduRoute {
 
         Recorrido recorrido = new Recorrido("R001", LocalDate.now(), ruta.getZona(), ruta);
         recorrido.inicio();
-        JOptionPane.showMessageDialog(Ventana, "Recorrido iniciado con éxito.");
+        JOptionPane.showMessageDialog(Ventana, "Negocio.Recorrido iniciado con éxito.");
     }
 
 
@@ -848,7 +854,7 @@ public class PlataformaEduRoute {
                     "Eventos: " + recorridoActual.getEventos().size();
 
             JOptionPane.showMessageDialog(Ventana, reporte);
-            JOptionPane.showMessageDialog(Ventana, "Recorrido finalizado con éxito.");
+            JOptionPane.showMessageDialog(Ventana, "Negocio.Recorrido finalizado con éxito.");
 
             recorridoActual = null;
 

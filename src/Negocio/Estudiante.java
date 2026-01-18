@@ -1,3 +1,5 @@
+package Negocio;
+
 public class Estudiante {
     private String idEst;
     private String nombre;
@@ -103,7 +105,7 @@ public class Estudiante {
 
     @Override
     public String toString() {
-        return "Estudiante" +
+        return "Negocio.Estudiante" +
                 "\nid=" + idEst +
                 "\nnombre=" + nombre +
                 "\ncurso=" + curso +

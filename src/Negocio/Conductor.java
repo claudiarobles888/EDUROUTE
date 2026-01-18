@@ -1,3 +1,5 @@
+package Negocio;
+
 public class Conductor {
     private String idConductor;
     private String nombreConductor;

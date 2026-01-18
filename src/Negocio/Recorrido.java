@@ -1,3 +1,5 @@
+package Negocio;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -25,13 +27,13 @@ public class Recorrido {
     public void inicio(){
         this.horaInicio = LocalTime.now();
         this.estado = "En curso";
-        eventos.add("Recorrido " + idRecorrido + " iniciado a las " + horaInicio);
+        eventos.add("Negocio.Recorrido " + idRecorrido + " iniciado a las " + horaInicio);
     }
 
     public void finalizar(){
         this.horaFin = LocalTime.now();
         this.estado = "Finalizado";
-        eventos.add("Recorrido " + idRecorrido + " finalizado a las " + horaFin);
+        eventos.add("Negocio.Recorrido " + idRecorrido + " finalizado a las " + horaFin);
     }
 
     public void registrarSubida(Estudiante e){
@@ -48,7 +50,7 @@ public class Recorrido {
     }
 
     public void registrarAusente(Estudiante e){
-        String msg = "ATENCIÓN TRANSPORTISTA: Estudiante AUSENTE -> " + e.getNombre();
+        String msg = "ATENCIÓN TRANSPORTISTA: Negocio.Estudiante AUSENTE -> " + e.getNombre();
         System.out.println(msg);
         eventos.add(msg);
     }

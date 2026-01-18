@@ -1,3 +1,5 @@
+package Negocio;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +66,7 @@ private List<Parada> paradas;
 
     @Override
     public String toString() {
-        return "Ruta{" + numeroRuta + " - " + nombreRuta + " (" + zona + ")}";
+        return "Negocio.Ruta{" + numeroRuta + " - " + nombreRuta + " (" + zona + ")}";
     }
 
 }

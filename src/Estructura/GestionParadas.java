@@ -1,3 +1,7 @@
+package Estructura;
+
+import Negocio.Parada;
+
 import java.util.ArrayList;
 import java.util.List;
 

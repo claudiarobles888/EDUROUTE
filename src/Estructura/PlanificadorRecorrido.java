@@ -1,3 +1,7 @@
+package Estructura;
+
+import Negocio.*;
+
 import java.util.List;
 
 public class PlanificadorRecorrido {
@@ -30,7 +34,7 @@ public class PlanificadorRecorrido {
         }
 
         for (Parada parada : ruta.listarParadas()) {
-            System.out.println("\nParada: " + parada.getNombreParada());
+            System.out.println("\nNegocio.Parada: " + parada.getNombreParada());
 
             for (Estudiante e : parada.listarEstudiantes()) {
                 if (e.isAusente()) {
@@ -40,7 +44,7 @@ public class PlanificadorRecorrido {
                 if (bus.agregarEstudiante(e)) {
                     recorrido.registrarSubida(e);
                 } else {
-                    String msg = "Bus lleno, no pudo subir: " + e.getNombre();
+                    String msg = "Negocio.Bus lleno, no pudo subir: " + e.getNombre();
                     System.out.println(msg);
                 }
             }
