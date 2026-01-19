@@ -1,13 +1,12 @@
-import Estructura.GestionAsignacion;
-import Estructura.GestionEstudiantes;
-import Estructura.GestionParadas;
-import Estructura.GestionRutas;
+import Estructura.*;
 import Negocio.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PlataformaEduRoute {
     private JPanel Ventana;
@@ -32,7 +31,7 @@ public class PlataformaEduRoute {
     private JComboBox cbRutaAsignada;
     private JButton btnRegistrarParada;
     private JButton btnModificarParada;
-    private JButton eliminarParadaButton;
+    private JButton btnEliminarParada;
     private JButton btnLimpiarParada;
     private JTextField txtIdBus;
     private JTextField txtPlacaBus;
@@ -58,14 +57,31 @@ public class PlataformaEduRoute {
     private JButton btnFinalizar;
     private JButton btnAsignarConductor;
     private JButton btnLiberarConductor;
+    private JLabel lblNombreRuta;
+    private JLabel lblZonaRuta;
+    private JLabel lblNumeroRuta;
+    private JLabel lblTotalParadas;
+    private JLabel lblTotalEstudiantesRuta;
+    private JLabel lblTiempoTotalRuta;
+    private JTextArea txtSectoresRuta;
+    private JComboBox cbRutaOptimizar;
+    private JComboBox cbCriterioOptimizacion;
+    private JCheckBox chkConsiderarAusencias;
+    private JButton btnCalcularRutaOptima;
+    private JButton btnCompararRutas;
+    private JButton btnAplicarOptimizacion;
+    private JButton btnMostrarEstudiantes;
+
 
     private GestionEstudiantes gestorEst;
     private GestionParadas gestorPar;
     private GestionRutas gestorRut;
     private GestionAsignacion gestorAsign;
     private Recorrido recorridoActual;
+    private PlanificadorRecorrido planificador;
     private List<Bus> buses;
     private List<Conductor> conductores;
+
 
     public PlataformaEduRoute() {
         inicializarGestores();
@@ -80,6 +96,8 @@ public class PlataformaEduRoute {
         gestorAsign = new GestionAsignacion(gestorEst, gestorPar, gestorRut);
         buses = new ArrayList<>();
         conductores = new ArrayList<>();
+        planificador = new PlanificadorRecorrido();
+
     }
 
     private void cargarDatosPrecargados() {
@@ -272,6 +290,13 @@ public class PlataformaEduRoute {
             }
         });
 
+        btnMostrarEstudiantes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+// completar boton de accion
+            }
+        });
+
         btnbuscarEstudiante.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -293,7 +318,7 @@ public class PlataformaEduRoute {
             }
         });
 
-        eliminarParadaButton.addActionListener(new ActionListener() {
+        btnEliminarParada.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 eliminarParada();
@@ -364,7 +389,12 @@ public class PlataformaEduRoute {
             }
         });
 
-
+        btnFinalizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                finalizarRecorrido();
+            }
+        });
     }
 
     private void registrarEstudiante() {
@@ -437,34 +467,28 @@ public class PlataformaEduRoute {
     }
 
     private void modificarEstudiane() {
-        try {
-            String idEstudiante = txtIdEstudiante.getText().trim();
-            String nuevoNombre = txtNombreEstudiante.getText().trim();
-            String nuevoCurso = txtCurso.getText().trim();
-            String nuevaDireccion = txtDireccion.getText().trim();
-            String nuevaPrioridad = cbPrioridad.getSelectedItem().toString();
+        String idEstudiante = txtIdEstudiante.getText().trim();
+        String nuevoNombre = txtNombreEstudiante.getText().trim();
+        String nuevoCurso = txtCurso.getText().trim();
+        String nuevaDireccion = txtDireccion.getText().trim();
+        String nuevaPrioridad = cbPrioridad.getSelectedItem().toString();
 
-            if (idEstudiante.isEmpty() || nuevoNombre.isEmpty() || nuevoCurso.isEmpty() || nuevaDireccion.isEmpty() || nuevaPrioridad.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Por favor, completa todos los campos.");
-                return;
-            }
+        if (idEstudiante.isEmpty() || nuevoNombre.isEmpty() || nuevoCurso.isEmpty() || nuevaDireccion.isEmpty() || nuevaPrioridad.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Por favor, completa todos los campos.");
+            return;
+        }
 
-            Estudiante estudiante = gestorEst.buscarPorId(idEstudiante);
-            if (estudiante == null) {
-                JOptionPane.showMessageDialog(Ventana, "No se encontró un estudiante con ese ID.");
-                return;
-            }
+        Estudiante estudiante = gestorEst.buscarPorId(idEstudiante);
+        if (estudiante == null) {
+            JOptionPane.showMessageDialog(Ventana, "No se encontró un estudiante con ese ID.");
+            return;
+        }
 
-            boolean actualizado = gestorEst.actualizarEstudiante(idEstudiante, nuevoNombre, nuevoCurso, nuevaDireccion, nuevaPrioridad);
-            if (actualizado) {
-                JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante modificado correctamente.");
-            } else {
-                JOptionPane.showMessageDialog(Ventana, "Hubo un error al modificar el estudiante.");
-            }
-
-        } catch (Exception ex) {
-
-            JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al modificar el estudiante: " + ex.getMessage());
+        boolean actualizado = gestorEst.actualizarEstudiante(idEstudiante, nuevoNombre, nuevoCurso, nuevaDireccion, nuevaPrioridad);
+        if (actualizado) {
+            JOptionPane.showMessageDialog(Ventana, "Estudiante modificado correctamente.");
+        } else {
+            JOptionPane.showMessageDialog(Ventana, "Hubo un error al modificar el estudiante.");
         }
     }
 
@@ -500,40 +524,97 @@ public class PlataformaEduRoute {
     }
 
     private void registrarParada() {
-        String idParada = txtIdParada.getText().trim();
-        if (idParada.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
-            return;
+        try {
+            String idParada = txtIdParada.getText().trim();
+            if (idParada.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
+                return;
+            }
+
+            String nombreParada = txtNombreParada.getText().trim();
+            if (nombreParada.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre válido para la parada.");
+                return;
+            }
+
+            int tiempoEstimado = (Integer) spinTiempoParada.getValue();
+            if (tiempoEstimado <= 0) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese un tiempo estimado válido.");
+                return;
+            }
+
+            String ubicacion = txtUbicacionParada.getText().trim();
+            if (ubicacion.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese una ubicación válida.");
+                return;
+            }
+
+            String rutaSeleccionada = (String) cbRutaAsignada.getSelectedItem();
+            if (rutaSeleccionada == null || rutaSeleccionada.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Seleccione una ruta válida.");
+                return;
+            }
+
+            Parada nuevaParada = new Parada(idParada, nombreParada, tiempoEstimado, ubicacion);
+
+            gestorPar.registrarParada(nuevaParada);
+
+            JOptionPane.showMessageDialog(Ventana, "Parada registrada con éxito.");
+
+            limpiarParada();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar la parada: " + ex.getMessage());
+            ex.printStackTrace();
         }
 
-        String nombreParada = txtNombreParada.getText().trim();
-        if (nombreParada.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre válido para la parada.");
-            return;
-        }
-
-        int tiempoEstimado = (Integer) spinTiempoParada.getValue();
-        if (tiempoEstimado <= 0) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese un tiempo estimado válido.");
-            return;
-        }
-
-        String ubicacion = txtUbicacionParada.getText().trim();
-        if (ubicacion.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese una ubicación válida.");
-            return;
-        }
-
-        String rutaSeleccionada = (String) cbRutaAsignada.getSelectedItem();
-
-        Parada nuevaParada = new Parada(idParada, nombreParada, tiempoEstimado, ubicacion);
-        gestorPar.registrarParada(nuevaParada);
-        JOptionPane.showMessageDialog(Ventana, "Negocio.Parada registrada con éxito.");
-        limpiarParada();
     }
 
+
     private void modificarParada() {
-        //REVISAR//
+            try {
+                String idParada = txtIdParada.getText().trim();
+                if (idParada.isEmpty()) {
+                    JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
+                    return;
+                }
+
+                Parada parada = gestorPar.buscarPorId(idParada);
+                if (parada == null) {
+                    JOptionPane.showMessageDialog(Ventana, "Negocio.Parada no encontrada.");
+                    return;
+                }
+
+                String nombreParada = txtNombreParada.getText().trim();
+                if (nombreParada.isEmpty()) {
+                    JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre válido para la parada.");
+                    return;
+                }
+
+                int tiempoEstimado = (Integer) spinTiempoParada.getValue();
+                if (tiempoEstimado <= 0) {
+                    JOptionPane.showMessageDialog(Ventana, "Ingrese un tiempo estimado válido.");
+                    return;
+                }
+
+                String ubicacion = txtUbicacionParada.getText().trim();
+                if (ubicacion.isEmpty()) {
+                    JOptionPane.showMessageDialog(Ventana, "Ingrese una ubicación válida.");
+                    return;
+                }
+
+                parada.setNombreParada(nombreParada);
+                parada.setUbicacion(ubicacion);
+
+                JOptionPane.showMessageDialog(Ventana, "Negocio.Parada modificada con éxito.");
+
+
+                limpiarParada();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al modificar la parada: " + ex.getMessage());
+                ex.printStackTrace();
+            }
     }
 
     private void eliminarParada() {
@@ -566,27 +647,32 @@ public class PlataformaEduRoute {
     }
 
     private void registrarBus() {
-        String idBus = txtIdBus.getText().trim();
-        String placa = txtPlacaBus.getText().trim();
-        int capacidad = (Integer) spinCapacidadBus.getValue();
-        String estado = (String) cbEstadoBus.getSelectedItem();
+            try {
+                String idBus = txtIdBus.getText().trim();
+                String placa = txtPlacaBus.getText().trim();
+                int capacidad = (Integer) spinCapacidadBus.getValue();
+                String estado = (String) cbEstadoBus.getSelectedItem();
 
-        if (idBus.isEmpty() || placa.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
-            return;
-        }
+                if (idBus.isEmpty() || placa.isEmpty()) {
+                    JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
+                    return;
+                }
 
-        Bus bus = new Bus(idBus, placa);
-        buses.add(bus);
+                Bus bus = new Bus(idBus, placa);
+                buses.add(bus);
 
-        if (estado.equals("Disponible")) {
-            bus.marcarDisponible();
-        } else {
-            bus.marcarNoDisponible();
-        }
+                if (estado.equals("Disponible")) {
+                    bus.marcarDisponible();
+                } else {
+                    bus.marcarNoDisponible();
+                }
 
-        JOptionPane.showMessageDialog(Ventana, "Negocio.Bus registrado exitosamente.");
-        limpiarCamposBus();
+                JOptionPane.showMessageDialog(Ventana, "Bus registrado exitosamente.");
+                limpiarCamposBus();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar el bus: " + ex.getMessage());
+                ex.printStackTrace();
+            }
     }
 
     private void eliminarBus() {
@@ -623,19 +709,24 @@ public class PlataformaEduRoute {
 
 
     private void registrarConductor() {
-        String idConductor = txtIdConductor.getText().trim();
-        String nombreConductor = txtNombreConductor.getText().trim();
+        try {
+            String idConductor = txtIdConductor.getText().trim();
+            String nombreConductor = txtNombreConductor.getText().trim();
 
-        if (idConductor.isEmpty() || nombreConductor.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
-            return;
+            if (idConductor.isEmpty() || nombreConductor.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
+                return;
+            }
+
+            Conductor conductor = new Conductor(idConductor, nombreConductor);
+            conductores.add(conductor);
+
+            JOptionPane.showMessageDialog(Ventana, "Conductor registrado exitosamente.");
+            limpiarCamposConductor();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar el conductor: " + ex.getMessage());
+            ex.printStackTrace();
         }
-
-        Conductor conductor = new Conductor(idConductor, nombreConductor);
-        conductores.add(conductor);
-
-        JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor registrado exitosamente.");
-        limpiarCamposConductor();
     }
 
     private void eliminarConductor() {
@@ -746,40 +837,69 @@ public class PlataformaEduRoute {
     }
 
     private void iniciarRecorrido(){
-        String idRuta = cbRutaRecorrido.getSelectedItem().toString();
-        String idBus = cbBusRecorrido.getSelectedItem().toString();
-        String idConductor = cbChoferRecorrido.getSelectedItem().toString();
+            String idRuta = cbRutaRecorrido.getSelectedItem().toString();
+            String idBus = cbBusRecorrido.getSelectedItem().toString();
+            String idConductor = cbChoferRecorrido.getSelectedItem().toString();
 
-        Ruta ruta = gestorRut.buscarPorId(idRuta);
-        Bus bus = null;
-        Conductor conductor = null;
+            Ruta ruta = gestorRut.buscarPorId(idRuta);
+            Bus bus = null;
+            Conductor conductor = null;
 
-        for (Bus b : buses) {
-            if (b.getIdBus().equals(idBus)) {
-                bus = b;
-                break;
+            for (Bus b : buses) {
+                if (b.getIdBus().equals(idBus)) {
+                    bus = b;
+                    break;
+                }
             }
-        }
 
-        for (Conductor c : conductores) {
-            if (c.getIdConductor().equals(idConductor)) {
-                conductor = c;
-                break;
+            for (Conductor c : conductores) {
+                if (c.getIdConductor().equals(idConductor)) {
+                    conductor = c;
+                    break;
+                }
             }
+
+            if (ruta == null || bus == null || conductor == null) {
+                JOptionPane.showMessageDialog(Ventana, "No se pudo encontrar uno de los elementos seleccionados.");
+                return;
+            }
+
+            // Crear el grafo con las paradas y rutas
+            Grafo grafo = new Grafo();
+
+            // Añadir paradas al grafo
+            for (Parada p : gestorPar.listar()) {
+                grafo.añadirParada(p);
+            }
+
+            // Añadir rutas al grafo
+            for (Ruta r : gestorRut.listarRutas()) {
+                for (int i = 0; i < r.listarParadas().size() - 1; i++) {
+                    Parada origen = r.listarParadas().get(i);
+                    Parada destino = r.listarParadas().get(i + 1);
+                    grafo.añadirRuta(origen.getIdParada(), destino.getIdParada(), destino.obtenerTiempoEstimado());
+                    // Suponemos que las rutas son bidireccionales
+                    grafo.añadirRuta(destino.getIdParada(), origen.getIdParada(), origen.obtenerTiempoEstimado());
+                }
+            }
+
+            // Calcular el camino más corto entre dos paradas
+            String paradaInicio = "P001"; // Por ejemplo, Carcelén Centro
+            String paradaDestino = "P005"; // Por ejemplo, Iñaquito
+            List<String> caminoMasCorto = grafo.calcularCaminoMasCorto(paradaInicio, paradaDestino);
+
+            // Mostrar el recorrido
+            StringBuilder recorrido = new StringBuilder("Recorrido más corto:\n");
+            for (String paradaId : caminoMasCorto) {
+                recorrido.append(paradaId).append("\n");
+            }
+
+            JOptionPane.showMessageDialog(Ventana, recorrido.toString());
         }
 
-        if (ruta == null || bus == null || conductor == null) {
-            JOptionPane.showMessageDialog(Ventana, "No se pudo encontrar uno de los elementos seleccionados.");
-            return;
-        }
-
-        Recorrido recorrido = new Recorrido("R001", LocalDate.now(), ruta.getZona(), ruta);
-        recorrido.inicio();
-        JOptionPane.showMessageDialog(Ventana, "Negocio.Recorrido iniciado con éxito.");
-    }
 
 
-    private void pausarRecorrido() {
+        private void pausarRecorrido() {
         if (recorridoActual == null) {
             JOptionPane.showMessageDialog(Ventana, "No hay un recorrido en curso para pausar.");
             return;
@@ -869,18 +989,6 @@ public class PlataformaEduRoute {
         }
     }
 
-
-
-
-
-
-
-
-}
-
-
-
-
     public static void main(String[] args) {
         JFrame frame = new JFrame("PlataformaEduRoute");
         frame.setContentPane(new PlataformaEduRoute().Ventana);
@@ -888,4 +996,6 @@ public class PlataformaEduRoute {
         frame.pack();
         frame.setVisible(true);
     }
+
+}
 
