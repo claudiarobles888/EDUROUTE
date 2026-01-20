@@ -71,6 +71,12 @@ public class PlataformaEduRoute {
     private JButton btnCompararRutas;
     private JButton btnAplicarOptimizacion;
     private JButton btnMostrarEstudiantes;
+    private JTextArea txtAMostrarEstudiantes;
+    private JTextArea txtAListaParadas;
+    private JTextArea txtAListaBuses;
+    private JTextArea txtAListaConductores;
+    private JButton btnMostrarParada;
+    private JTextArea txtARutaActual;
 
 
     private GestionEstudiantes gestorEst;
@@ -292,9 +298,7 @@ public class PlataformaEduRoute {
 
         btnMostrarEstudiantes.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-// completar boton de accion
-            }
+            public void actionPerformed(ActionEvent e) {mostrarEstudiantes();}
         });
 
         btnbuscarEstudiante.addActionListener(new ActionListener() {
@@ -398,42 +402,53 @@ public class PlataformaEduRoute {
     }
 
     private void registrarEstudiante() {
-        String idEst = txtIdEstudiante.getText().trim();
-        if (idEst.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese una ID valida.");
-            txtIdEstudiante.requestFocus();
-            return;
-        }
+            String idEst = txtIdEstudiante.getText().trim();
+            if (idEst.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
+                txtIdEstudiante.requestFocus();
+                return;
+            }
 
-        String nombre = txtIdEstudiante.getText().trim();
-        if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre valido.");
-            txtIdEstudiante.requestFocus();
-            return;
-        }
+            String nombre = txtNombreEstudiante.getText().trim();
+            if (nombre.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre válido.");
+                txtNombreEstudiante.requestFocus();
+                return;
+            }
 
-        String curso = txtCurso.getText().trim();
-        if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese un curso valido.");
-            txtIdEstudiante.requestFocus();
-            return;
-        }
+            String curso = txtCurso.getText().trim();
+            if (curso.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese un curso válido.");
+                txtCurso.requestFocus();
+                return;
+            }
 
-        String direccion = txtDireccion.getText().trim();
-        if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese una direccion valida.");
-            txtDireccion.requestFocus();
-            return;
-        }
+            String direccion = txtDireccion.getText().trim();
+            if (direccion.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese una dirección válida.");
+                txtDireccion.requestFocus();
+                return;
+            }
 
-        String prioridad = (cbPrioridad.getSelectedItem() != null)
-                ? cbPrioridad.getSelectedItem().toString()
-                : "";
-        if (prioridad.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Seleccione prioridad.");
-            cbPrioridad.requestFocus();
-            return;
-        }
+            String prioridad = (cbPrioridad.getSelectedItem() != null)
+                    ? cbPrioridad.getSelectedItem().toString()
+                    : "";
+            if (prioridad.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Seleccione prioridad.");
+                cbPrioridad.requestFocus();
+                return;
+            }
+
+            // FALTA: Crear y registrar el estudiante
+            Estudiante nuevoEst = new Estudiante(idEst, nombre, curso, direccion, prioridad);
+            boolean registrado = gestorEst.registrarEstudiante(nuevoEst);
+
+            if (registrado) {
+                JOptionPane.showMessageDialog(Ventana, "Estudiante registrado exitosamente.");
+                limpiarEstudiante();
+            } else {
+                JOptionPane.showMessageDialog(Ventana, "Error: ID de estudiante ya existe.");
+            }
     }
 
 
@@ -503,24 +518,30 @@ public class PlataformaEduRoute {
     }
 
     private void buscarEstudiante() {
-        String idEst = txtIdEstudiante.getText().trim();
-        if (idEst.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
-            return;
-        }
+            String idEst = txtIdEstudiante.getText().trim();
+            if (idEst.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
+                return;
+            }
 
-        Estudiante estudiante = gestorEst.buscarPorId(idEst);
-        if (estudiante == null) {
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante no encontrado.");
-            limpiarEstudiante();
-        } else {
-            txtNombreEstudiante.setText(estudiante.getNombre());
-            txtCurso.setText(estudiante.getCurso());
-            txtDireccion.setText(estudiante.getDireccion());
-            cbPrioridad.setSelectedItem(estudiante.getPrioridad());
-            cbRutaEstudiante.setSelectedItem(estudiante.getNumeroRuta());
-            cbParadaEstudiante.setSelectedItem(estudiante.obtenerParada() != null ? estudiante.obtenerParada().getNombreParada() : "Sin asignar");
-        }
+            Estudiante estudiante = gestorEst.buscarPorId(idEst);
+            if (estudiante == null) {
+                JOptionPane.showMessageDialog(Ventana, "Estudiante no encontrado.");
+                limpiarEstudiante();
+            } else {
+                txtNombreEstudiante.setText(estudiante.getNombre());
+                txtCurso.setText(estudiante.getCurso());
+                txtDireccion.setText(estudiante.getDireccion());
+                cbPrioridad.setSelectedItem(estudiante.getPrioridad());
+
+                if (estudiante.getNumeroRuta() != null) {
+                    cbRutaEstudiante.setSelectedItem(estudiante.getNumeroRuta());
+                }
+
+                if (estudiante.obtenerParada() != null) {
+                    cbParadaEstudiante.setSelectedItem(estudiante.obtenerParada().getNombreParada());
+                }
+            }
     }
 
     private void registrarParada() {
@@ -658,6 +679,22 @@ public class PlataformaEduRoute {
                     return;
                 }
 
+                // Verificar si el ID ya existe
+                for (Bus bus : buses) {
+                    if (bus.getIdBus().equals(idBus)) {
+                        JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un bus con este ID.");
+                        return;
+                    }
+                }
+
+                // Verificar si la placa ya existe
+                for (Bus bus : buses) {
+                    if (bus.getPlaca().equals(placa)) {
+                        JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un bus con esta placa.");
+                        return;
+                    }
+                }
+
                 Bus bus = new Bus(idBus, placa);
                 buses.add(bus);
 
@@ -668,7 +705,11 @@ public class PlataformaEduRoute {
                 }
 
                 JOptionPane.showMessageDialog(Ventana, "Bus registrado exitosamente.");
-                limpiarCamposBus();
+
+                // ACTUALIZAR LISTAS
+                mostrarBuses(); // Actualiza la lista visible
+                limpiarCamposBus(); // Limpia los campos
+
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar el bus: " + ex.getMessage());
                 ex.printStackTrace();
@@ -709,24 +750,36 @@ public class PlataformaEduRoute {
 
 
     private void registrarConductor() {
-        try {
-            String idConductor = txtIdConductor.getText().trim();
-            String nombreConductor = txtNombreConductor.getText().trim();
+            try {
+                String idConductor = txtIdConductor.getText().trim();
+                String nombreConductor = txtNombreConductor.getText().trim();
 
-            if (idConductor.isEmpty() || nombreConductor.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
-                return;
+                if (idConductor.isEmpty() || nombreConductor.isEmpty()) {
+                    JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
+                    return;
+                }
+
+                // Verificar si el ID ya existe
+                for (Conductor conductor : conductores) {
+                    if (conductor.getIdConductor().equals(idConductor)) {
+                        JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un conductor con este ID.");
+                        return;
+                    }
+                }
+
+                Conductor conductor = new Conductor(idConductor, nombreConductor);
+                conductores.add(conductor);
+
+                JOptionPane.showMessageDialog(Ventana, "Conductor registrado exitosamente.");
+
+                // ACTUALIZAR LISTAS
+                mostrarConductores(); // Actualiza la lista visible
+                limpiarCamposConductor(); // Limpia los campos
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar el conductor: " + ex.getMessage());
+                ex.printStackTrace();
             }
-
-            Conductor conductor = new Conductor(idConductor, nombreConductor);
-            conductores.add(conductor);
-
-            JOptionPane.showMessageDialog(Ventana, "Conductor registrado exitosamente.");
-            limpiarCamposConductor();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar el conductor: " + ex.getMessage());
-            ex.printStackTrace();
-        }
     }
 
     private void eliminarConductor() {
@@ -989,13 +1042,291 @@ public class PlataformaEduRoute {
         }
     }
 
-    public static void main(String[] args) {
+    private void mostrarEstudiantes(){
+            // Obtener la lista de estudiantes registrados
+            List<Estudiante> estudiantes = gestorEst.listarEstudiante();
+
+            // Verifica si la lista está vacía
+            if (estudiantes.isEmpty()) {
+                txtAMostrarEstudiantes.setText("No hay estudiantes registrados.");
+                return;
+            }
+
+            // Crear un StringBuilder para mostrar los estudiantes en un formato adecuado
+            StringBuilder sb = new StringBuilder();
+            sb.append("══════════════════════════════════════════════════════════\n");
+            sb.append("                 LISTA DE ESTUDIANTES                    \n");
+            sb.append("══════════════════════════════════════════════════════════\n");
+            sb.append("Total de estudiantes: ").append(estudiantes.size()).append("\n\n");
+
+            int altaPrioridad = 0;
+            int mediaPrioridad = 0;
+            int bajaPrioridad = 0;
+            int sinRuta = 0;
+            int sinParada = 0;
+
+            for (Estudiante estudiante : estudiantes) {
+                // Estadísticas de prioridad
+                if ("Alta".equalsIgnoreCase(estudiante.getPrioridad())) {
+                    altaPrioridad++;
+                } else if ("Media".equalsIgnoreCase(estudiante.getPrioridad())) {
+                    mediaPrioridad++;
+                } else if ("Baja".equalsIgnoreCase(estudiante.getPrioridad())) {
+                    bajaPrioridad++;
+                }
+
+                // Estadísticas de asignación
+                if (estudiante.getNumeroRuta() == null || estudiante.getNumeroRuta().isEmpty()) {
+                    sinRuta++;
+                }
+                if (estudiante.obtenerParada() == null) {
+                    sinParada++;
+                }
+
+                // Información detallada de cada estudiante
+                sb.append("══════════════════════════════════════════════════════════\n");
+                sb.append("ID: ").append(estudiante.getIdEst()).append("\n");
+                sb.append("Nombre: ").append(estudiante.getNombre()).append("\n");
+                sb.append("Curso: ").append(estudiante.getCurso()).append("\n");
+                sb.append("Dirección: ").append(estudiante.getDireccion()).append("\n");
+                sb.append("Prioridad: ").append(estudiante.getPrioridad()).append("\n");
+
+                // Información de asignación
+                String ruta = (estudiante.getNumeroRuta() != null && !estudiante.getNumeroRuta().isEmpty())
+                        ? estudiante.getNumeroRuta() : "No asignada";
+                String zona = (estudiante.getZona() != null && !estudiante.getZona().isEmpty())
+                        ? estudiante.getZona() : "Sin zona";
+                String sector = (estudiante.getSector() != null && !estudiante.getSector().isEmpty())
+                        ? estudiante.getSector() : "Sin sector";
+                String parada = (estudiante.obtenerParada() != null)
+                        ? estudiante.obtenerParada().getNombreParada() : "No asignada";
+
+                sb.append("Ruta: ").append(ruta).append(" (Zona: ").append(zona).append(", Sector: ").append(sector).append(")\n");
+                sb.append("Parada: ").append(parada).append("\n");
+
+                // Estado de asistencia
+                sb.append("Estado: ").append(estudiante.isAusente() ? "AUSENTE" : "PRESENTE").append("\n");
+                sb.append("══════════════════════════════════════════════════════════\n\n");
+            }
+
+            // Agregar estadísticas al final
+            sb.append("\n══════════════════════════════════════════════════════════\n");
+            sb.append("                  ESTADÍSTICAS                            \n");
+            sb.append("══════════════════════════════════════════════════════════\n");
+            sb.append("Prioridades:\n");
+            sb.append("   • Alta: ").append(altaPrioridad).append(" estudiantes\n");
+            sb.append("   • Media: ").append(mediaPrioridad).append(" estudiantes\n");
+            sb.append("   • Baja: ").append(bajaPrioridad).append(" estudiantes\n\n");
+
+            sb.append("Asignaciones pendientes:\n");
+            sb.append("   • Sin ruta: ").append(sinRuta).append(" estudiantes\n");
+            sb.append("   • Sin parada: ").append(sinParada).append(" estudiantes\n");
+            sb.append("══════════════════════════════════════════════════════════\n");
+
+            // Establecer el texto en el área de texto
+            txtAMostrarEstudiantes.setText(sb.toString());
+
+            // Opcional: Habilitar scroll y formato
+            txtAMostrarEstudiantes.setCaretPosition(0); // Ir al inicio
+        }
+
+    private void mostrarBuses() {
+        // Verifica si la lista está vacía
+        if (buses.isEmpty()) {
+            txtAListaBuses.setText("No hay buses registrados.");
+            return;
+        }
+
+        // Crear un StringBuilder para mostrar los buses
+        StringBuilder sb = new StringBuilder();
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("                   LISTA DE BUSES                        \n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("Total de buses: ").append(buses.size()).append("\n\n");
+
+        // Contadores para estadísticas
+        int disponibles = 0;
+        int ocupados = 0;
+        int conCapacidadMinima = 0;
+
+        for (Bus bus : buses) {
+            // Estadísticas
+            if (bus.estadoDisponible()) {
+                disponibles++;
+            } else {
+                ocupados++;
+            }
+
+            if (bus.capacidadMinimaBusCumplida()) {
+                conCapacidadMinima++;
+            }
+
+            // Información detallada de cada bus
+            sb.append("══════════════════════════════════════════════════════════\n");
+            sb.append("ID Bus: ").append(bus.getIdBus()).append("\n");
+            sb.append("Placa: ").append(bus.getPlaca()).append("\n");
+            sb.append("Capacidad: ").append(bus.getCapacidadActual()).append("/").append(bus.getCapacidadMax()).append("\n");
+            sb.append("Estado: ").append(bus.estadoDisponible() ? "DISPONIBLE" : "NO DISPONIBLE").append("\n");
+
+            // Mostrar conductores asignados
+            List<Conductor> conductoresBus = bus.listarConductores();
+            if (conductoresBus.isEmpty()) {
+                sb.append("Conductores: No asignados\n");
+            } else {
+                sb.append("Conductores asignados (").append(conductoresBus.size()).append("):\n");
+                for (Conductor conductor : conductoresBus) {
+                    sb.append("   • ").append(conductor.getNombreConductor())
+                            .append(" (").append(conductor.getIdConductor()).append(")")
+                            .append(" - ").append(conductor.isDisponible() ? "Disponible" : "Ocupado").append("\n");
+                }
+            }
+
+            // Mostrar estudiantes en el bus
+            List<Estudiante> estudiantesBus = bus.listarEstudiantes();
+            sb.append("Estudiantes a bordo: ").append(estudiantesBus.size()).append("\n");
+
+            if (!estudiantesBus.isEmpty()) {
+                sb.append("   Detalle de estudiantes:\n");
+                for (Estudiante estudiante : estudiantesBus) {
+                    sb.append("   • ").append(estudiante.getNombre())
+                            .append(" (").append(estudiante.getIdEst()).append(")\n");
+                }
+            }
+
+            sb.append("══════════════════════════════════════════════════════════\n\n");
+        }
+
+        // Agregar estadísticas al final
+        sb.append("\n══════════════════════════════════════════════════════════\n");
+        sb.append("                  ESTADÍSTICAS DE BUSES                   \n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("Disponibilidad:\n");
+        sb.append("   • Disponibles: ").append(disponibles).append(" buses\n");
+        sb.append("   • Ocupados: ").append(ocupados).append(" buses\n\n");
+
+        sb.append("Capacidad:\n");
+        sb.append("   • Con capacidad mínima: ").append(conCapacidadMinima).append(" buses\n");
+        sb.append("   • Sin conductores: ").append(contarBusesSinConductores()).append(" buses\n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+
+        // Establecer el texto en el área de texto
+        txtAListaBuses.setText(sb.toString());
+        txtAListaBuses.setCaretPosition(0);
+    }
+
+    // Método auxiliar para contar buses sin conductores
+    private int contarBusesSinConductores() {
+        int count = 0;
+        for (Bus bus : buses) {
+            if (bus.listarConductores().isEmpty()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private void mostrarConductores() {
+        // Verifica si la lista está vacía
+        if (conductores.isEmpty()) {
+            txtAListaConductores.setText("No hay conductores registrados.");
+            return;
+        }
+
+        // Crear un StringBuilder para mostrar los conductores
+        StringBuilder sb = new StringBuilder();
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("                LISTA DE CONDUCTORES                     \n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("Total de conductores: ").append(conductores.size()).append("\n\n");
+
+        // Contadores para estadísticas
+        int disponibles = 0;
+        int ocupados = 0;
+        int asignadosABus = 0;
+
+        for (Conductor conductor : conductores) {
+            // Verificar si está asignado a algún bus
+            boolean asignado = estaAsignadoABus(conductor);
+
+            // Estadísticas
+            if (conductor.isDisponible()) {
+                disponibles++;
+            } else {
+                ocupados++;
+            }
+
+            if (asignado) {
+                asignadosABus++;
+            }
+
+            // Información detallada de cada conductor
+            sb.append("══════════════════════════════════════════════════════════\n");
+            sb.append("ID Conductor: ").append(conductor.getIdConductor()).append("\n");
+            sb.append("Nombre: ").append(conductor.getNombreConductor()).append("\n");
+            sb.append("Estado: ").append(conductor.isDisponible() ? "DISPONIBLE" : "❌ NO DISPONIBLE").append("\n");
+            sb.append("Asignado a bus: ").append(asignado ? "SÍ" : "NO").append("\n");
+
+            // Mostrar a qué bus está asignado (si aplica)
+            if (asignado) {
+                Bus busAsignado = obtenerBusDeConductor(conductor);
+                if (busAsignado != null) {
+                    sb.append("   • Bus asignado: ").append(busAsignado.getIdBus())
+                            .append(" (").append(busAsignado.getPlaca()).append(")\n");
+                }
+            }
+            sb.append("══════════════════════════════════════════════════════════\n\n");
+        }
+
+        // Agregar estadísticas al final
+        sb.append("\n══════════════════════════════════════════════════════════\n");
+        sb.append("                ESTADÍSTICAS DE CONDUCTORES              \n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("Disponibilidad:\n");
+        sb.append("   • Disponibles: ").append(disponibles).append(" conductores\n");
+        sb.append("   • Ocupados: ").append(ocupados).append(" conductores\n\n");
+
+        sb.append("Asignación:\n");
+        sb.append("   • Asignados a buses: ").append(asignadosABus).append(" conductores\n");
+        sb.append("   • Sin asignar: ").append(conductores.size() - asignadosABus).append(" conductores\n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+
+        // Establecer el texto en el área de texto
+        txtAListaConductores.setText(sb.toString());
+        txtAListaConductores.setCaretPosition(0);
+    }
+
+    // Métodos auxiliares para conductores
+    private boolean estaAsignadoABus(Conductor conductor) {
+        for (Bus bus : buses) {
+            for (Conductor c : bus.listarConductores()) {
+                if (c.getIdConductor().equals(conductor.getIdConductor())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Bus obtenerBusDeConductor(Conductor conductor) {
+        for (Bus bus : buses) {
+            for (Conductor c : bus.listarConductores()) {
+                if (c.getIdConductor().equals(conductor.getIdConductor())) {
+                    return bus;
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+        public static void main(String[] args) {
         JFrame frame = new JFrame("PlataformaEduRoute");
         frame.setContentPane(new PlataformaEduRoute().Ventana);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        frame.setSize(800, 800);
     }
-
 }
 
