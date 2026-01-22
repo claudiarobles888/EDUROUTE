@@ -6,11 +6,11 @@ public class Estudiante {
     private String curso;
     private String direccion;
     private String prioridad;
-    private Parada paradaAsignada;
-    private boolean ausente;
     private String numeroRuta;
     private String zona;
     private String sector;
+    private Parada paradaAsignada;
+    private boolean ausente;
 
     public Estudiante(String idEst, String nombre, String curso, String direccion, String prioridad) {
         this.idEst = idEst;
@@ -19,28 +19,19 @@ public class Estudiante {
         this.direccion = direccion;
         this.prioridad = prioridad;
         this.ausente = false;
+        this.paradaAsignada = null;
+        this.numeroRuta = null;
+        this.zona = null;
+        this.sector = null;
     }
 
-    public void asignarParada(Parada parada){
-        this.paradaAsignada = parada;
-    }
-
-    public Parada obtenerParada(){
-        return paradaAsignada;
-    }
-
-    public void marcarAusente(){
-        this.ausente = true;
-    }
-
-    public void marcarPresente(){ this.ausente = false; }
-
+    // Getters y Setters
     public String getIdEst() {
         return idEst;
     }
 
-    public void setId(String idEst) {
-        this.idEst = idEst;
+    public String getIdEstudiante() {
+        return idEst;
     }
 
     public String getNombre() {
@@ -75,10 +66,6 @@ public class Estudiante {
         this.prioridad = prioridad;
     }
 
-    public boolean isAusente() {
-        return ausente;
-    }
-
     public String getNumeroRuta() {
         return numeroRuta;
     }
@@ -91,29 +78,40 @@ public class Estudiante {
         return zona;
     }
 
-    public String getSector() {
-        return sector;
-    }
-
     public void setZona(String zona) {
         this.zona = zona;
+    }
+
+    public String getSector() {
+        return sector;
     }
 
     public void setSector(String sector) {
         this.sector = sector;
     }
 
+    public Parada obtenerParada() {
+        return paradaAsignada;
+    }
+
+    public void asignarParada(Parada parada) {
+        this.paradaAsignada = parada;
+        if (parada != null) {
+            this.sector = parada.getSector();
+        }
+    }
+
+    public boolean isAusente() {
+        return ausente;
+    }
+
+    public void setAusente(boolean ausente) {
+        this.ausente = ausente;
+    }
+
     @Override
     public String toString() {
-        return "Negocio.Estudiante" +
-                "\nid=" + idEst +
-                "\nnombre=" + nombre +
-                "\ncurso=" + curso +
-                "\ndireccion=" + direccion +
-                "\nprioridad=" + prioridad +
-                "\nnumero de ruta=" + numeroRuta +
-                "\nzona=" + zona +
-                "\nsector=" + sector +
-                "\nparada=" + (paradaAsignada != null ? paradaAsignada.getNombreParada(): "Sin asignar");
+        return String.format("%s - %s (%s) - Prioridad: %s",
+                idEst, nombre, curso, prioridad);
     }
 }

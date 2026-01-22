@@ -1,46 +1,99 @@
-package Estructura;
+package Estructura;  // CAMBIADO de "Negocio" a "Estructura"
+
 import Negocio.Estudiante;
+import Negocio.Parada;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GestionEstudiantes {
-    private Nodo inicio; // Puntero al primer elemento
+    private List<Estudiante> estudiantes;
 
-    // CLASE INTERNA: El "corazón" de la estructura
-    private class Nodo {
-        Estudiante estudiante;
-        Nodo siguiente;
-        Nodo(Estudiante e) { this.estudiante = e; }
+    public GestionEstudiantes() {
+        this.estudiantes = new ArrayList<>();
     }
 
-    public boolean registrarEstudiante(Estudiante e) {
-        if (buscarPorId(e.getIdEst()) != null) return false; // Evita duplicados
-        Nodo nuevo = new Nodo(e);
-        if (inicio == null) {
-            inicio = nuevo;
-        } else {
-            Nodo aux = inicio;
-            while (aux.siguiente != null) aux = aux.siguiente;
-            aux.siguiente = nuevo;
+    public boolean registrarEstudiante(Estudiante estudiante) {
+        for (Estudiante e : estudiantes) {
+            if (e.getIdEst().equals(estudiante.getIdEst())) {
+                return false;
+            }
         }
+        estudiantes.add(estudiante);
         return true;
     }
 
-    public Estudiante buscarPorId(String id) {
-        Nodo aux = inicio;
-        while (aux != null) {
-            if (aux.estudiante.getIdEst().equals(id)) return aux.estudiante;
-            aux = aux.siguiente;
+    public boolean eliminarEstudiante(String idEst) {
+        return estudiantes.removeIf(e -> e.getIdEst().equals(idEst));
+    }
+
+    public Estudiante buscarPorId(String idEst) {
+        for (Estudiante estudiante : estudiantes) {
+            if (estudiante.getIdEst().equals(idEst)) {
+                return estudiante;
+            }
         }
         return null;
     }
 
-    // Método para que la interfaz pueda listar (reemplaza al listarEstudiante anterior)
-    public java.util.List<Estudiante> listarEstudiante() {
-        java.util.List<Estudiante> listaAux = new java.util.ArrayList<>();
-        Nodo aux = inicio;
-        while (aux != null) {
-            listaAux.add(aux.estudiante);
-            aux = aux.siguiente;
+    public boolean actualizarEstudiante(String idEst, String nuevoNombre, String nuevoCurso,
+                                        String nuevaDireccion, String nuevaPrioridad) {
+        Estudiante estudiante = buscarPorId(idEst);
+        if (estudiante != null) {
+            estudiante.setNombre(nuevoNombre);
+            estudiante.setCurso(nuevoCurso);
+            estudiante.setDireccion(nuevaDireccion);
+            estudiante.setPrioridad(nuevaPrioridad);
+            return true;
         }
-        return listaAux;
+        return false;
+    }
+
+    public List<Estudiante> buscarPorRuta(String numeroRuta) {
+        List<Estudiante> resultado = new ArrayList<>();
+        for (Estudiante estudiante : estudiantes) {
+            if (estudiante.getNumeroRuta() != null &&
+                    estudiante.getNumeroRuta().equals(numeroRuta)) {
+                resultado.add(estudiante);
+            }
+        }
+        return resultado;
+    }
+
+    public List<Estudiante> buscarPorSector(String sector) {
+        List<Estudiante> resultado = new ArrayList<>();
+        for (Estudiante estudiante : estudiantes) {
+            if (estudiante.getSector() != null &&
+                    estudiante.getSector().equalsIgnoreCase(sector)) {
+                resultado.add(estudiante);
+            }
+        }
+        return resultado;
+    }
+
+    public boolean asignarRuta(String idEst, String numeroRuta, String zona, String sector) {
+        if (idEst == null || numeroRuta == null || zona == null || sector == null) return false;
+
+        Estudiante estudiante = buscarPorId(idEst.trim());
+        if (estudiante == null) return false;
+
+
+        estudiante.setNumeroRuta(numeroRuta.trim());
+        estudiante.setZona(zona.trim());
+        estudiante.setSector(sector.trim());
+
+        return true;
+    }
+
+
+    public List<Estudiante> listarEstudiante() {
+        return new ArrayList<>(estudiantes);
+    }
+
+    public int contarEstudiantes() {
+        return estudiantes.size();
+    }
+
+    public List<Estudiante> getEstudiantes() {
+        return new ArrayList<>(estudiantes);
     }
 }

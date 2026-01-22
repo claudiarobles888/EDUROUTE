@@ -4,118 +4,96 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bus {
-    private String idBus;
-    private String placa;
+    private final String idBus;
+    private final String placa;
     private boolean disponible;
-    private int capacidadMin = 5;
-    private int capacidadMax;  // NO inicializado con valor fijo
-    private List<Conductor> conductores;
-    private List<Estudiante> estudiantes;
 
-    // CONSTRUCTOR 1: Con capacidad personalizada (RECOMENDADO)
+    private final int capacidadMin = 5;
+    private final int capacidadMax;
+
+    private final List<Conductor> conductores;
+    private final List<Estudiante> estudiantes;
+
     public Bus(String idBus, String placa, int capacidadMax) {
+        if (idBus == null || idBus.isBlank()) throw new IllegalArgumentException("idBus inválido");
+        if (placa == null || placa.isBlank()) throw new IllegalArgumentException("placa inválida");
+
+        if (capacidadMax < capacidadMin || capacidadMax > 50) {
+            throw new IllegalArgumentException("capacidadMax debe estar entre " + capacidadMin + " y 50");
+        }
+
         this.idBus = idBus;
         this.placa = placa;
-        this.capacidadMax = capacidadMax;  // Asigna la capacidad recibida
+        this.capacidadMax = capacidadMax;
+
         this.disponible = true;
         this.conductores = new ArrayList<>();
         this.estudiantes = new ArrayList<>();
-
-        // Validar capacidad mínima
-        if (capacidadMax < capacidadMin) {
-            this.capacidadMax = capacidadMin;
-            System.out.println("Advertencia: Capacidad ajustada a mínimo " + capacidadMin);
-        }
     }
 
-    // CONSTRUCTOR 2: Con capacidad por defecto (12) - para compatibilidad
     public Bus(String idBus, String placa) {
-        this(idBus, placa, 12);  // Llama al primer constructor con 12
+        this(idBus, placa, 12);
     }
 
-    // MÉTODOS PARA AGREGAR/ELIMINAR ESTUDIANTES
     public boolean agregarEstudiante(Estudiante e) {
-        if (estudiantes.size() < capacidadMax) {
-            estudiantes.add(e);
-            return true;
-        }
-        return false;
+        if (e == null) return false;
+        if (estudiantes.size() >= capacidadMax) return false;
+
+        boolean existe = estudiantes.stream().anyMatch(x -> x.getIdEst().equals(e.getIdEst()));
+        if (existe) return false;
+
+        estudiantes.add(e);
+        return true;
     }
 
     public boolean eliminarEstudiante(String idEst) {
-        return estudiantes.removeIf(e -> e.getIdEst().equals(idEst));
+        if (idEst == null) return false;
+        return estudiantes.removeIf(e -> idEst.equals(e.getIdEst()));
     }
 
     public List<Estudiante> listarEstudiantes() {
         return new ArrayList<>(estudiantes);
     }
 
-    // MÉTODOS PARA CONDUCTORES
+    public boolean capacidadMinimaBusCumplida() {
+        return estudiantes.size() >= capacidadMin;
+    }
+
     public boolean asignarConductor(Conductor conductor) {
-        if (conductores.size() < 2) {
-            conductores.add(conductor);
-            return true;
-        }
-        return false;
+        if (conductor == null) return false;
+        if (conductores.size() >= 2) return false;
+
+        boolean existe = conductores.stream().anyMatch(c -> c.getIdConductor().equals(conductor.getIdConductor()));
+        if (existe) return false;
+
+        conductores.add(conductor);
+        return true;
+    }
+
+
+    public boolean removerConductor(String idConductor) {
+        if (idConductor == null) return false;
+        return conductores.removeIf(c -> idConductor.equals(c.getIdConductor()));
     }
 
     public List<Conductor> listarConductores() {
         return new ArrayList<>(conductores);
     }
 
-    // MÉTODOS DE CAPACIDAD
-    public boolean capacidadMinimaBusCumplida() {
-        return estudiantes.size() >= capacidadMin;
-    }
-
-    public int getCapacidadActual() {
-        return estudiantes.size();
-    }
-
-    // GETTERS Y SETTERS
-    public String getIdBus() {
-        return idBus;
-    }
-
-    public String getPlaca() {
-        return placa;
-    }
-
-    public int getCapacidadMax() {
-        return capacidadMax;
-    }
-
-    // Setter para modificar capacidad después de creado
-    public void setCapacidadMax(int capacidadMax) {
-        if (capacidadMax >= capacidadMin && capacidadMax >= estudiantes.size()) {
-            this.capacidadMax = capacidadMax;
-        } else {
-            System.out.println("Error: Capacidad no válida. Mínimo " + capacidadMin +
-                    " y no menor que estudiantes actuales (" + estudiantes.size() + ")");
-        }
-    }
-
     public boolean estadoDisponible() {
         return disponible;
     }
 
-    public void marcarNoDisponible() {
-        disponible = false;
-    }
+    public void marcarNoDisponible() { disponible = false; }
+    public void marcarDisponible() { disponible = true; }
 
-    public void marcarDisponible() {
-        disponible = true;
-    }
+    public String getIdBus() { return idBus; }
+    public String getPlaca() { return placa; }
+    public int getCapacidadMax() { return capacidadMax; }
+    public int getCapacidadActual() { return estudiantes.size(); }
 
-    // MÉTODO PARA VER ESTADO DEL BUS
     @Override
     public String toString() {
-        return "Bus{" +
-                "id='" + idBus + '\'' +
-                ", placa='" + placa + '\'' +
-                ", estado=" + (disponible ? "Disponible" : "No disponible") +
-                ", capacidad=" + estudiantes.size() + "/" + capacidadMax +
-                ", conductores=" + conductores.size() +
-                '}';
+        return "Bus{" + placa + ", id=" + idBus + ", ocupado=" + estudiantes.size() + "/" + capacidadMax + "}";
     }
 }

@@ -6,7 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlataformaEduRoute {
     private JPanel Ventana;
@@ -35,7 +36,7 @@ public class PlataformaEduRoute {
     private JButton btnLimpiarParada;
     private JTextField txtIdBus;
     private JTextField txtPlacaBus;
-    private JSpinner spinCapacidadBus;
+    private JComboBox cbCapacidadBus;
     private JComboBox cbEstadoBus;
     private JButton btnRegistrarBus;
     private JButton btnEliminarBus;
@@ -51,10 +52,7 @@ public class PlataformaEduRoute {
     private JComboBox cbTipoRecorrido;
     private JComboBox cbBusRecorrido;
     private JComboBox cbReemplazoRecorrido;
-    private JCheckBox checkBox1;
     private JButton btnIniciarRecorrido;
-    private JButton btnPausar;
-    private JButton btnFinalizar;
     private JButton btnAsignarConductor;
     private JButton btnLiberarConductor;
     private JLabel lblNombreRuta;
@@ -66,7 +64,6 @@ public class PlataformaEduRoute {
     private JTextArea txtSectoresRuta;
     private JComboBox cbRutaOptimizar;
     private JComboBox cbCriterioOptimizacion;
-    private JCheckBox chkConsiderarAusencias;
     private JButton btnCalcularRutaOptima;
     private JButton btnCompararRutas;
     private JButton btnAplicarOptimizacion;
@@ -77,7 +74,8 @@ public class PlataformaEduRoute {
     private JTextArea txtAListaConductores;
     private JButton btnMostrarParada;
     private JTextArea txtARutaActual;
-
+    private JTextArea txtAEstadoRecorrido;
+    private JTextArea txtARutaOptimizada;
 
     private GestionEstudiantes gestorEst;
     private GestionParadas gestorPar;
@@ -87,13 +85,30 @@ public class PlataformaEduRoute {
     private PlanificadorRecorrido planificador;
     private List<Bus> buses;
     private List<Conductor> conductores;
+    private Map<String, String> rutaToBus = new HashMap<>();
+    private Map<String, String> rutaToConductor = new HashMap<>();
+
 
 
     public PlataformaEduRoute() {
         inicializarGestores();
+        cargarCombosZonas();
         cargarDatosPrecargados();
+        refrescarCombosAsignacion();
         configurarListeners();
+        mostrarRutasConZonas();
+        configurarScrollParadas();
+
     }
+
+    private void configurarScrollParadas() {
+        if (txtAListaParadas == null) return;
+
+        txtAListaParadas.setLineWrap(true);
+        txtAListaParadas.setWrapStyleWord(true);
+    }
+
+
 
     private void inicializarGestores() {
         gestorEst = new GestionEstudiantes();
@@ -103,7 +118,42 @@ public class PlataformaEduRoute {
         buses = new ArrayList<>();
         conductores = new ArrayList<>();
         planificador = new PlanificadorRecorrido();
+    }
 
+
+    private void cargarCombosZonas() {
+
+        DefaultComboBoxModel<String> modeloZonas = new DefaultComboBoxModel<>();
+        for (Ruta.Zona zona : Ruta.getTodasLasZonas()) {
+            modeloZonas.addElement(zona.getNombre());
+        }
+
+        cbRutaAsignada.setModel(modeloZonas);
+
+
+        if (cbSeleccionRuta != null) {
+            cbSeleccionRuta.setModel(modeloZonas);
+        }
+
+
+        cargarRutasEnCombos();
+    }
+
+
+    private void cargarRutasEnCombos() {
+        DefaultComboBoxModel<String> modeloRutas = new DefaultComboBoxModel<>();
+        List<Ruta> rutas = gestorRut.listarRutas();
+        for (Ruta ruta : rutas) {
+            modeloRutas.addElement(ruta.getIdRuta());
+        }
+
+        if (cbRutaRecorrido != null) {
+            cbRutaRecorrido.setModel(modeloRutas);
+        }
+
+        if (cbRutaOptimizar != null) {
+            cbRutaOptimizar.setModel(modeloRutas);
+        }
     }
 
     private void cargarDatosPrecargados() {
@@ -116,6 +166,7 @@ public class PlataformaEduRoute {
         conductores.add(new Conductor("C006", "Carmen López"));
         conductores.add(new Conductor("C007", "Roberto Torres"));
         conductores.add(new Conductor("C008", "Sandra Morales"));
+
 
         buses.add(new Bus("B001", "ABC-123"));
         buses.add(new Bus("B002", "DEF-456"));
@@ -132,98 +183,104 @@ public class PlataformaEduRoute {
 
         cargarRutasPrecargadas();
         cargarEstudiantesPrecargados();
+        mostrarBuses();
+        mostrarConductores();
+    }
+
+    private void cargarComboBuses() {
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        for (Bus b : buses) {
+            model.addElement(b.getIdBus());
+        }
+        comboBox1.setModel(model);
+        cbBusRecorrido.setModel(model);
+    }
+
+    private void cargarComboConductores() {
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        for (Conductor c : conductores) {
+            model.addElement(c.getIdConductor());
+        }
+        comboBox2.setModel(model);
+        cbChoferRecorrido.setModel(model);
+    }
+
+    private void refrescarCombosAsignacion() {
+        cargarComboBuses();
+        cargarComboConductores();
+        cargarRutasEnCombos();
     }
 
     private void cargarRutasPrecargadas() {
-        // Negocio.Ruta 1 - Norte
-        Ruta ruta1 = new Ruta("R001", "Negocio.Ruta Norte", "1", "Norte",
-                Arrays.asList("Carcelén", "Ponceano", "El Condado", "La Ofelia", "Cotocollao"));
-        Parada p1_1 = new Parada("P001", "Carcelén Centro", 5, "Av. Eloy Alfaro y Carcelén");
-        Parada p1_2 = new Parada("P002", "Ponceano Alto", 8, "Calle Principal Ponceano");
-        Parada p1_3 = new Parada("P003", "El Condado", 10, "Av. Mariscal Sucre y Condado");
-        ruta1.agregarParada(p1_1);
-        ruta1.agregarParada(p1_2);
-        ruta1.agregarParada(p1_3);
-        gestorPar.registrarParada(p1_1);
-        gestorPar.registrarParada(p1_2);
-        gestorPar.registrarParada(p1_3);
+        Ruta ruta1 = new Ruta("R001", "Ruta Norte", "1", Ruta.Zona.NORTE);
+        Parada p1_1 = new Parada("P001", "Carcelén Centro", 5, "Av. Eloy Alfaro y Carcelén", "Carcelén");
+        Parada p1_2 = new Parada("P002", "Ponceano Alto", 8, "Calle Principal Ponceano", "Ponceano");
+        Parada p1_3 = new Parada("P003", "El Condado", 10, "Av. Mariscal Sucre y Condado", "El Condado");
+
+        if (ruta1.agregarParada(p1_1)) gestorPar.registrarParada(p1_1);
+        if (ruta1.agregarParada(p1_2)) gestorPar.registrarParada(p1_2);
+        if (ruta1.agregarParada(p1_3)) gestorPar.registrarParada(p1_3);
         gestorRut.registrarRuta(ruta1);
 
-        // Negocio.Ruta 2 - Centro-Norte
-        Ruta ruta2 = new Ruta("R002", "Negocio.Ruta Centro-Norte", "2", "Centro-Norte",
-                Arrays.asList("La Gasca", "Bellavista", "Iñaquito", "El Batán", "González Suárez"));
-        Parada p2_1 = new Parada("P004", "La Gasca", 6, "Av. La Gasca y América");
-        Parada p2_2 = new Parada("P005", "Iñaquito", 7, "Av. Naciones Unidas y Iñaquito");
-        ruta2.agregarParada(p2_1);
-        ruta2.agregarParada(p2_2);
-        gestorPar.registrarParada(p2_1);
-        gestorPar.registrarParada(p2_2);
+        Ruta ruta2 = new Ruta("R002", "Ruta Centro-Norte", "2", Ruta.Zona.CENTRO_NORTE);
+        Parada p2_1 = new Parada("P004", "La Gasca", 6, "Av. La Gasca y América", "La Gasca");
+        Parada p2_2 = new Parada("P005", "Iñaquito", 7, "Av. Naciones Unidas y Iñaquito", "Iñaquito");
+
+        if (ruta2.agregarParada(p2_1)) gestorPar.registrarParada(p2_1);
+        if (ruta2.agregarParada(p2_2)) gestorPar.registrarParada(p2_2);
         gestorRut.registrarRuta(ruta2);
 
-        // Negocio.Ruta 3 - Centro
-        Ruta ruta3 = new Ruta("R003", "Negocio.Ruta Centro", "3", "Centro",
-                Arrays.asList("La Marín", "San Blas", "La Tola", "Itchimbía", "San Roque"));
-        Parada p3_1 = new Parada("P006", "La Marín", 5, "Plaza La Marín");
-        Parada p3_2 = new Parada("P007", "San Blas", 8, "Barrio San Blas");
-        ruta3.agregarParada(p3_1);
-        ruta3.agregarParada(p3_2);
-        gestorPar.registrarParada(p3_1);
-        gestorPar.registrarParada(p3_2);
+        Ruta ruta3 = new Ruta("R003", "Ruta Centro", "3", Ruta.Zona.CENTRO);
+        Parada p3_1 = new Parada("P006", "La Marín", 5, "Plaza La Marín", "La Marín");
+        Parada p3_2 = new Parada("P007", "San Blas", 8, "Barrio San Blas", "San Blas");
+
+        if (ruta3.agregarParada(p3_1)) gestorPar.registrarParada(p3_1);
+        if (ruta3.agregarParada(p3_2)) gestorPar.registrarParada(p3_2);
         gestorRut.registrarRuta(ruta3);
 
-        // Negocio.Ruta 4 - Sur
-        Ruta ruta4 = new Ruta("R004", "Negocio.Ruta Sur", "4", "Sur",
-                Arrays.asList("Chimbacalle", "El Recreo", "La Magdalena", "Quitumbe", "Guamaní"));
-        Parada p4_1 = new Parada("P008", "Chimbacalle", 7, "Av. Maldonado y Chimbacalle");
-        Parada p4_2 = new Parada("P009", "El Recreo", 10, "Estación El Recreo");
-        ruta4.agregarParada(p4_1);
-        ruta4.agregarParada(p4_2);
-        gestorPar.registrarParada(p4_1);
-        gestorPar.registrarParada(p4_2);
+        // Ruta 4 - Sur
+        Ruta ruta4 = new Ruta("R004", "Ruta Sur", "4", Ruta.Zona.SUR);
+        Parada p4_1 = new Parada("P008", "Chimbacalle", 7, "Av. Maldonado y Chimbacalle", "Chimbacalle");
+        Parada p4_2 = new Parada("P009", "El Recreo", 10, "Estación El Recreo", "El Recreo");
+
+        if (ruta4.agregarParada(p4_1)) gestorPar.registrarParada(p4_1);
+        if (ruta4.agregarParada(p4_2)) gestorPar.registrarParada(p4_2);
         gestorRut.registrarRuta(ruta4);
 
-        // Negocio.Ruta 5 - Valle de los Chillos
-        Ruta ruta5 = new Ruta("R005", "Negocio.Ruta Valle Chillos", "5", "Valle de los Chillos",
-                Arrays.asList("Conocoto", "San Rafael", "Alangasí"));
-        Parada p5_1 = new Parada("P010", "Conocoto", 12, "Plaza Conocoto");
-        Parada p5_2 = new Parada("P011", "San Rafael", 15, "Centro San Rafael");
-        ruta5.agregarParada(p5_1);
-        ruta5.agregarParada(p5_2);
-        gestorPar.registrarParada(p5_1);
-        gestorPar.registrarParada(p5_2);
+        // Ruta 5 - Valle de los Chillos
+        Ruta ruta5 = new Ruta("R005", "Ruta Valle Chillos", "5", Ruta.Zona.VALLES_CHILLOS);
+        Parada p5_1 = new Parada("P010", "Conocoto", 12, "Plaza Conocoto", "Conocoto");
+        Parada p5_2 = new Parada("P011", "San Rafael", 15, "Centro San Rafael", "San Rafael");
+
+        if (ruta5.agregarParada(p5_1)) gestorPar.registrarParada(p5_1);
+        if (ruta5.agregarParada(p5_2)) gestorPar.registrarParada(p5_2);
         gestorRut.registrarRuta(ruta5);
 
-        // Negocio.Ruta 6 - Valle de Tumbaco
-        Ruta ruta6 = new Ruta("R006", "Negocio.Ruta Valle Tumbaco", "6", "Valle de Tumbaco",
-                Arrays.asList("Cumbayá", "Tumbaco", "Puembo"));
-        Parada p6_1 = new Parada("P012", "Cumbayá", 10, "Plaza Cumbayá");
-        Parada p6_2 = new Parada("P013", "Tumbaco", 13, "Centro Tumbaco");
-        ruta6.agregarParada(p6_1);
-        ruta6.agregarParada(p6_2);
-        gestorPar.registrarParada(p6_1);
-        gestorPar.registrarParada(p6_2);
+        // Ruta 6 - Valle de Tumbaco
+        Ruta ruta6 = new Ruta("R006", "Ruta Valle Tumbaco", "6", Ruta.Zona.VALLES_TUMBACO);
+        Parada p6_1 = new Parada("P012", "Cumbayá", 10, "Plaza Cumbayá", "Cumbayá");
+        Parada p6_2 = new Parada("P013", "Tumbaco", 13, "Centro Tumbaco", "Tumbaco");
+
+        if (ruta6.agregarParada(p6_1)) gestorPar.registrarParada(p6_1);
+        if (ruta6.agregarParada(p6_2)) gestorPar.registrarParada(p6_2);
         gestorRut.registrarRuta(ruta6);
 
-        // Negocio.Ruta 7 - Noroeste
-        Ruta ruta7 = new Ruta("R007", "Negocio.Ruta Noroeste", "7", "Noroeste",
-                Arrays.asList("Pomasqui", "San Antonio de Pichincha", "Calderón"));
-        Parada p7_1 = new Parada("P014", "Pomasqui", 18, "Centro Pomasqui");
-        Parada p7_2 = new Parada("P015", "Calderón", 15, "Plaza Calderón");
-        ruta7.agregarParada(p7_1);
-        ruta7.agregarParada(p7_2);
-        gestorPar.registrarParada(p7_1);
-        gestorPar.registrarParada(p7_2);
+        // Ruta 7 - Noroeste
+        Ruta ruta7 = new Ruta("R007", "Ruta Noroeste", "7", Ruta.Zona.NOROESTE);
+        Parada p7_1 = new Parada("P014", "Pomasqui", 18, "Centro Pomasqui", "Pomasqui");
+        Parada p7_2 = new Parada("P015", "Calderón", 15, "Plaza Calderón", "Calderón");
+
+        if (ruta7.agregarParada(p7_1)) gestorPar.registrarParada(p7_1);
+        if (ruta7.agregarParada(p7_2)) gestorPar.registrarParada(p7_2);
         gestorRut.registrarRuta(ruta7);
 
-        // Negocio.Ruta 8 - Suroriental
-        Ruta ruta8 = new Ruta("R008", "Negocio.Ruta Suroriental", "8", "Suroriental",
-                Arrays.asList("Amaguaña", "Alóag", "Tambillo"));
-        Parada p8_1 = new Parada("P016", "Amaguaña", 20, "Centro Amaguaña");
-        Parada p8_2 = new Parada("P017", "Tambillo", 22, "Plaza Tambillo");
-        ruta8.agregarParada(p8_1);
-        ruta8.agregarParada(p8_2);
-        gestorPar.registrarParada(p8_1);
-        gestorPar.registrarParada(p8_2);
+        // Ruta 8 - Suroriental
+        Ruta ruta8 = new Ruta("R008", "Ruta Suroriental", "8", Ruta.Zona.SURORIENTAL);
+        Parada p8_1 = new Parada("P016", "Amaguaña", 20, "Centro Amaguaña", "Amaguaña");
+        Parada p8_2 = new Parada("P017", "Tambillo", 22, "Plaza Tambillo", "Tambillo");
+
+        if (ruta8.agregarParada(p8_1)) gestorPar.registrarParada(p8_1);
+        if (ruta8.agregarParada(p8_2)) gestorPar.registrarParada(p8_2);
         gestorRut.registrarRuta(ruta8);
     }
 
@@ -242,6 +299,8 @@ public class PlataformaEduRoute {
         for (Estudiante est : estudiantesPrecargados) {
             gestorEst.registrarEstudiante(est);
         }
+
+
         gestorAsign.asignarParadaEstudiante("E001", "P001");
         gestorAsign.asignarRutaAEstudiante("E001", "1", "Carcelén");
 
@@ -332,7 +391,7 @@ public class PlataformaEduRoute {
         btnLimpiarParada.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                limpiarEstudiante();
+                limpiarParada();
             }
         });
 
@@ -385,19 +444,6 @@ public class PlataformaEduRoute {
             }
         });
 
-        btnPausar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                pausarRecorrido();
-            }
-        });
-
-        btnFinalizar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                finalizarRecorrido();
-            }
-        });
 
         btnMostrarParada.addActionListener(new ActionListener() {
             @Override
@@ -405,58 +451,110 @@ public class PlataformaEduRoute {
                 mostrarParadas();
             }
         });
+
+
+        if (cbRutaRecorrido != null) {
+            cbRutaRecorrido.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    actualizarInfoRutaSeleccionada();
+                }
+            });
+        }
+    }
+
+
+    private void actualizarInfoRutaSeleccionada() {
+        if (cbRutaRecorrido.getSelectedItem() == null) return;
+
+        String idRuta = cbRutaRecorrido.getSelectedItem().toString();
+        Ruta ruta = gestorRut.buscarPorId(idRuta);
+
+        if (ruta != null) {
+            lblNombreRuta.setText(ruta.getNombreRuta());
+            lblZonaRuta.setText(ruta.getZona().getNombre());
+            lblNumeroRuta.setText(ruta.getNumeroRuta());
+            lblTotalParadas.setText(String.valueOf(ruta.listarParadas().size()));
+            lblTotalEstudiantesRuta.setText(String.valueOf(ruta.getTotalEstudiantes()));
+            lblTiempoTotalRuta.setText(ruta.calcularTiempoTotal() + " min");
+
+            StringBuilder sectores = new StringBuilder();
+            for (String sector : ruta.getSectoresZona()) {
+                sectores.append("• ").append(sector).append("\n");
+            }
+            txtSectoresRuta.setText(sectores.toString());
+        }
+    }
+
+    private void mostrarRutasConZonas() {
+        List<Ruta> rutas = gestorRut.listarRutas();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("=== RUTAS REGISTRADAS ===\n\n");
+        for (Ruta ruta : rutas) {
+            sb.append("ID: ").append(ruta.getIdRuta()).append("\n");
+            sb.append("Número: ").append(ruta.getNumeroRuta()).append("\n");
+            sb.append("Nombre: ").append(ruta.getNombreRuta()).append("\n");
+            sb.append("Zona: ").append(ruta.getZona().getNombre()).append("\n");
+            sb.append("Sectores: ").append(String.join(", ", ruta.getSectoresZona())).append("\n");
+            sb.append("Paradas: ").append(ruta.listarParadas().size()).append("\n");
+            sb.append("Estudiantes: ").append(ruta.getTotalEstudiantes()).append("\n");
+            sb.append("────────────────────────────────────\n\n");
+        }
+
+        if (txtARutaActual != null) {
+            txtARutaActual.setText(sb.toString());
+        }
     }
 
     private void registrarEstudiante() {
-            String idEst = txtIdEstudiante.getText().trim();
-            if (idEst.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
-                txtIdEstudiante.requestFocus();
-                return;
-            }
+        String idEst = txtIdEstudiante.getText().trim();
+        if (idEst.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
+            txtIdEstudiante.requestFocus();
+            return;
+        }
 
-            String nombre = txtNombreEstudiante.getText().trim();
-            if (nombre.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre válido.");
-                txtNombreEstudiante.requestFocus();
-                return;
-            }
+        String nombre = txtNombreEstudiante.getText().trim();
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre válido.");
+            txtNombreEstudiante.requestFocus();
+            return;
+        }
 
-            String curso = txtCurso.getText().trim();
-            if (curso.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Ingrese un curso válido.");
-                txtCurso.requestFocus();
-                return;
-            }
+        String curso = txtCurso.getText().trim();
+        if (curso.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese un curso válido.");
+            txtCurso.requestFocus();
+            return;
+        }
 
-            String direccion = txtDireccion.getText().trim();
-            if (direccion.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Ingrese una dirección válida.");
-                txtDireccion.requestFocus();
-                return;
-            }
+        String direccion = txtDireccion.getText().trim();
+        if (direccion.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese una dirección válida.");
+            txtDireccion.requestFocus();
+            return;
+        }
 
-            String prioridad = (cbPrioridad.getSelectedItem() != null)
-                    ? cbPrioridad.getSelectedItem().toString()
-                    : "";
-            if (prioridad.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Seleccione prioridad.");
-                cbPrioridad.requestFocus();
-                return;
-            }
+        String prioridad = (cbPrioridad.getSelectedItem() != null)
+                ? cbPrioridad.getSelectedItem().toString()
+                : "";
+        if (prioridad.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Seleccione prioridad.");
+            cbPrioridad.requestFocus();
+            return;
+        }
 
-            // FALTA: Crear y registrar el estudiante
-            Estudiante nuevoEst = new Estudiante(idEst, nombre, curso, direccion, prioridad);
-            boolean registrado = gestorEst.registrarEstudiante(nuevoEst);
+        Estudiante nuevoEst = new Estudiante(idEst, nombre, curso, direccion, prioridad);
+        boolean registrado = gestorEst.registrarEstudiante(nuevoEst);
 
-            if (registrado) {
-                JOptionPane.showMessageDialog(Ventana, "Estudiante registrado exitosamente.");
-                limpiarEstudiante();
-            } else {
-                JOptionPane.showMessageDialog(Ventana, "Error: ID de estudiante ya existe.");
-            }
+        if (registrado) {
+            JOptionPane.showMessageDialog(Ventana, "Estudiante registrado exitosamente.");
+            limpiarEstudiante();
+        } else {
+            JOptionPane.showMessageDialog(Ventana, "Error: ID de estudiante ya existe.");
+        }
     }
-
 
     private void eliminarEstudiante() {
         String idEst = txtIdEstudiante.getText().trim();
@@ -467,10 +565,9 @@ public class PlataformaEduRoute {
 
         Estudiante estudiante = gestorEst.buscarPorId(idEst);
         if (estudiante == null) {
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante no encontrado.");
+            JOptionPane.showMessageDialog(Ventana, "Estudiante no encontrado.");
             return;
         }
-
 
         int respuesta = JOptionPane.showConfirmDialog(Ventana, "¿Está seguro de eliminar al estudiante?",
                 "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
@@ -478,13 +575,12 @@ public class PlataformaEduRoute {
         if (respuesta == JOptionPane.YES_OPTION) {
             boolean eliminado = gestorEst.eliminarEstudiante(idEst);
             if (eliminado) {
-                JOptionPane.showMessageDialog(Ventana, "Negocio.Estudiante eliminado correctamente.");
+                JOptionPane.showMessageDialog(Ventana, "Estudiante eliminado correctamente.");
                 limpiarEstudiante();
             } else {
                 JOptionPane.showMessageDialog(Ventana, "Hubo un problema al eliminar el estudiante.");
             }
         }
-
     }
 
     private void modificarEstudiane() {
@@ -494,7 +590,8 @@ public class PlataformaEduRoute {
         String nuevaDireccion = txtDireccion.getText().trim();
         String nuevaPrioridad = cbPrioridad.getSelectedItem().toString();
 
-        if (idEstudiante.isEmpty() || nuevoNombre.isEmpty() || nuevoCurso.isEmpty() || nuevaDireccion.isEmpty() || nuevaPrioridad.isEmpty()) {
+        if (idEstudiante.isEmpty() || nuevoNombre.isEmpty() || nuevoCurso.isEmpty() ||
+                nuevaDireccion.isEmpty() || nuevaPrioridad.isEmpty()) {
             JOptionPane.showMessageDialog(Ventana, "Por favor, completa todos los campos.");
             return;
         }
@@ -505,7 +602,8 @@ public class PlataformaEduRoute {
             return;
         }
 
-        boolean actualizado = gestorEst.actualizarEstudiante(idEstudiante, nuevoNombre, nuevoCurso, nuevaDireccion, nuevaPrioridad);
+        boolean actualizado = gestorEst.actualizarEstudiante(idEstudiante, nuevoNombre,
+                nuevoCurso, nuevaDireccion, nuevaPrioridad);
         if (actualizado) {
             JOptionPane.showMessageDialog(Ventana, "Estudiante modificado correctamente.");
         } else {
@@ -524,37 +622,128 @@ public class PlataformaEduRoute {
     }
 
     private void buscarEstudiante() {
-            String idEst = txtIdEstudiante.getText().trim();
-            if (idEst.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
-                return;
+        String idEst = txtIdEstudiante.getText().trim();
+        if (idEst.isEmpty()) {
+            JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
+            return;
+        }
+
+        Estudiante estudiante = gestorEst.buscarPorId(idEst);
+        if (estudiante == null) {
+            JOptionPane.showMessageDialog(Ventana, "Estudiante no encontrado.");
+            limpiarEstudiante();
+        } else {
+            txtNombreEstudiante.setText(estudiante.getNombre());
+            txtCurso.setText(estudiante.getCurso());
+            txtDireccion.setText(estudiante.getDireccion());
+            cbPrioridad.setSelectedItem(estudiante.getPrioridad());
+
+            if (estudiante.getNumeroRuta() != null) {
+                cbRutaEstudiante.setSelectedItem(estudiante.getNumeroRuta());
             }
 
-            Estudiante estudiante = gestorEst.buscarPorId(idEst);
-            if (estudiante == null) {
-                JOptionPane.showMessageDialog(Ventana, "Estudiante no encontrado.");
-                limpiarEstudiante();
-            } else {
-                txtNombreEstudiante.setText(estudiante.getNombre());
-                txtCurso.setText(estudiante.getCurso());
-                txtDireccion.setText(estudiante.getDireccion());
-                cbPrioridad.setSelectedItem(estudiante.getPrioridad());
-
-                if (estudiante.getNumeroRuta() != null) {
-                    cbRutaEstudiante.setSelectedItem(estudiante.getNumeroRuta());
-                }
-
-                if (estudiante.obtenerParada() != null) {
-                    cbParadaEstudiante.setSelectedItem(estudiante.obtenerParada().getNombreParada());
-                }
+            if (estudiante.obtenerParada() != null) {
+                cbParadaEstudiante.setSelectedItem(estudiante.obtenerParada().getNombreParada());
             }
+        }
     }
+
 
     private void registrarParada() {
         try {
             String idParada = txtIdParada.getText().trim();
+            String nombreParada = txtNombreParada.getText().trim();
+            int tiempoEstimado = (Integer) spinTiempoParada.getValue();
+            String ubicacion = txtUbicacionParada.getText().trim();
+            String zonaSeleccionada = (String) cbRutaAsignada.getSelectedItem();
+
+
+            if (idParada.isEmpty() || nombreParada.isEmpty() || ubicacion.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Complete todos los campos.");
+                return;
+            }
+
+            if (zonaSeleccionada == null || zonaSeleccionada.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Seleccione una zona.");
+                return;
+            }
+
+            Ruta.Zona zona = Ruta.getZonaPorNombre(zonaSeleccionada);
+            if (zona == null) {
+                JOptionPane.showMessageDialog(Ventana, "Zona no válida.");
+                return;
+            }
+
+
+            Parada paradaExistente = gestorPar.buscarPorId(idParada);
+            if (paradaExistente != null) {
+                JOptionPane.showMessageDialog(Ventana, "Ya existe una parada con ese ID.");
+                return;
+            }
+
+            List<String> sectores = zona.getSectores();
+            String[] sectoresArray = sectores.toArray(new String[0]);
+
+            String sectorSeleccionado = (String) JOptionPane.showInputDialog(
+                    Ventana,
+                    "Seleccione el sector de la parada:",
+                    "Seleccionar Sector - " + zona.getNombre(),
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    sectoresArray,
+                    sectoresArray[0]
+            );
+
+            if (sectorSeleccionado == null) {
+                return;
+            }
+
+            Parada nuevaParada = new Parada(idParada, nombreParada, tiempoEstimado,
+                    ubicacion, sectorSeleccionado);
+
+            boolean registroExitoso = gestorPar.registrarParada(nuevaParada);
+
+            if (registroExitoso) {
+                Ruta rutaDeZona = gestorRut.buscarPorZona(zona);
+                if (rutaDeZona != null) {
+                    if (rutaDeZona.agregarParada(nuevaParada)) {
+                        JOptionPane.showMessageDialog(Ventana,
+                                "Parada registrada exitosamente\n" +
+                                        "Zona: " + zona.getNombre() + "\n" +
+                                        "Sector: " + sectorSeleccionado + "\n" +
+                                        "Asignada a Ruta: " + rutaDeZona.getNumeroRuta());
+                    } else {
+                        JOptionPane.showMessageDialog(Ventana,
+                                "Parada registrada pero NO asignada a la ruta\n" +
+                                        "El sector no coincide con la validación de la ruta.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(Ventana,
+                            "Parada registrada pero no hay ruta para la zona " + zona.getNombre());
+                }
+                limpiarParada();
+                mostrarParadas();
+            } else {
+                JOptionPane.showMessageDialog(Ventana, "Error al registrar la parada.");
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(Ventana, "Error: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private void modificarParada() {
+        try {
+            String idParada = txtIdParada.getText().trim();
             if (idParada.isEmpty()) {
                 JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
+                return;
+            }
+
+            Parada parada = gestorPar.buscarPorId(idParada);
+            if (parada == null) {
+                JOptionPane.showMessageDialog(Ventana, "Parada no encontrada.");
                 return;
             }
 
@@ -576,72 +765,48 @@ public class PlataformaEduRoute {
                 return;
             }
 
-            String rutaSeleccionada = (String) cbRutaAsignada.getSelectedItem();
-            if (rutaSeleccionada == null || rutaSeleccionada.isEmpty()) {
-                JOptionPane.showMessageDialog(Ventana, "Seleccione una ruta válida.");
-                return;
+            String zonaSeleccionada = (String) cbRutaAsignada.getSelectedItem();
+            Ruta.Zona zona = null;
+            if (zonaSeleccionada != null && !zonaSeleccionada.isEmpty()) {
+                zona = Ruta.getZonaPorNombre(zonaSeleccionada);
             }
 
-            Parada nuevaParada = new Parada(idParada, nombreParada, tiempoEstimado, ubicacion);
+            String nuevoSector = parada.getSector();
+            if (zona != null) {
+                if (!zona.getSectores().contains(parada.getSector())) {
+                    List<String> sectores = zona.getSectores();
+                    String[] sectoresArray = sectores.toArray(new String[0]);
 
-            gestorPar.registrarParada(nuevaParada);
+                    nuevoSector = (String) JOptionPane.showInputDialog(
+                            Ventana,
+                            "El sector actual no pertenece a la zona seleccionada.\n" +
+                                    "Seleccione un nuevo sector:",
+                            "Seleccionar Sector",
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            sectoresArray,
+                            sectoresArray[0]
+                    );
 
-            JOptionPane.showMessageDialog(Ventana, "Parada registrada con éxito.");
+                    if (nuevoSector == null) {
+                        return;
+                    }
+                }
+            }
 
+            parada.setNombreParada(nombreParada);
+            parada.setTiempoEstimado(tiempoEstimado);
+            parada.setUbicacion(ubicacion);
+            parada.setSector(nuevoSector);
+
+            JOptionPane.showMessageDialog(Ventana, "Parada modificada con éxito.");
             limpiarParada();
+            mostrarParadas();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar la parada: " + ex.getMessage());
+            JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al modificar la parada: " + ex.getMessage());
             ex.printStackTrace();
         }
-
-    }
-
-
-    private void modificarParada() {
-            try {
-                String idParada = txtIdParada.getText().trim();
-                if (idParada.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese una ID válida.");
-                    return;
-                }
-
-                Parada parada = gestorPar.buscarPorId(idParada);
-                if (parada == null) {
-                    JOptionPane.showMessageDialog(Ventana, "Negocio.Parada no encontrada.");
-                    return;
-                }
-
-                String nombreParada = txtNombreParada.getText().trim();
-                if (nombreParada.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese un nombre válido para la parada.");
-                    return;
-                }
-
-                int tiempoEstimado = (Integer) spinTiempoParada.getValue();
-                if (tiempoEstimado <= 0) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese un tiempo estimado válido.");
-                    return;
-                }
-
-                String ubicacion = txtUbicacionParada.getText().trim();
-                if (ubicacion.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Ingrese una ubicación válida.");
-                    return;
-                }
-
-                parada.setNombreParada(nombreParada);
-                parada.setUbicacion(ubicacion);
-
-                JOptionPane.showMessageDialog(Ventana, "Negocio.Parada modificada con éxito.");
-
-
-                limpiarParada();
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al modificar la parada: " + ex.getMessage());
-                ex.printStackTrace();
-            }
     }
 
     private void eliminarParada() {
@@ -653,15 +818,21 @@ public class PlataformaEduRoute {
 
         Parada parada = gestorPar.buscarPorId(idParada);
         if (parada == null) {
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Parada no encontrada.");
+            JOptionPane.showMessageDialog(Ventana, "Parada no encontrada.");
             return;
         }
 
-        int confirmacion = JOptionPane.showConfirmDialog(Ventana, "¿Está seguro de eliminar esta parada?");
+        int confirmacion = JOptionPane.showConfirmDialog(Ventana,
+                "¿Está seguro de eliminar esta parada?\n" +
+                        "ID: " + idParada + "\n" +
+                        "Nombre: " + parada.getNombreParada(),
+                "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+
         if (confirmacion == JOptionPane.YES_OPTION) {
             gestorPar.eliminarParada(idParada);
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Parada eliminada con éxito.");
+            JOptionPane.showMessageDialog(Ventana, "Parada eliminada con éxito.");
             limpiarParada();
+            mostrarParadas();
         }
     }
 
@@ -674,58 +845,64 @@ public class PlataformaEduRoute {
     }
 
     private void registrarBus() {
-            try {
-                String idBus = txtIdBus.getText().trim();
-                String placa = txtPlacaBus.getText().trim();
-                int capacidad = (Integer) spinCapacidadBus.getValue(); // Esto SÍ se usa ahora
-                String estado = (String) cbEstadoBus.getSelectedItem();
+        try {
+            String idBus = txtIdBus.getText().trim();
+            String placa = txtPlacaBus.getText().trim();
+            String estado = (String) cbEstadoBus.getSelectedItem();
 
-                if (idBus.isEmpty() || placa.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
-                    return;
-                }
-
-                // Validar capacidad (mínimo 5, máximo 50 por ejemplo)
-                if (capacidad < 5 || capacidad > 50) {
-                    JOptionPane.showMessageDialog(Ventana,
-                            "La capacidad debe estar entre 5 y 50 estudiantes.");
-                    return;
-                }
-
-                // Verificar si el ID ya existe
-                for (Bus bus : buses) {
-                    if (bus.getIdBus().equals(idBus)) {
-                        JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un bus con este ID.");
-                        return;
-                    }
-                }
-
-                // Crear el bus CON la capacidad capturada
-                Bus bus = new Bus(idBus, placa, capacidad); // ← ¡Aquí pasamos la capacidad!
-                buses.add(bus);
-
-                if (estado.equals("Disponible")) {
-                    bus.marcarDisponible();
-                } else {
-                    bus.marcarNoDisponible();
-                }
-
-                JOptionPane.showMessageDialog(Ventana,
-                        "Bus registrado exitosamente.\n" +
-                                "ID: " + idBus + "\n" +
-                                "Placa: " + placa + "\n" +
-                                "Capacidad máxima: " + capacidad + " estudiantes");
-
-                // ACTUALIZAR LISTAS
-                mostrarBuses();
-                limpiarCamposBus();
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(Ventana,
-                        "Ocurrió un error al registrar el bus: " + ex.getMessage());
-                ex.printStackTrace();
+            if (idBus.isEmpty() || placa.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
+                return;
             }
 
+            if (cbCapacidadBus.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(Ventana, "Seleccione una capacidad.");
+                return;
+            }
+
+            int capacidad = Integer.parseInt(cbCapacidadBus.getSelectedItem().toString());
+
+            if (capacidad < 5 || capacidad > 50) {
+                JOptionPane.showMessageDialog(Ventana, "La capacidad debe estar entre 5 y 50 estudiantes.");
+                return;
+            }
+
+            for (Bus bus : buses) {
+                if (bus.getIdBus().equals(idBus)) {
+                    JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un bus con este ID.");
+                    return;
+                }
+            }
+
+            for (Bus bus : buses) {
+                if (bus.getPlaca().equals(placa)) {
+                    JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un bus con esta placa.");
+                    return;
+                }
+            }
+
+            Bus bus = new Bus(idBus, placa, capacidad);
+            buses.add(bus);
+
+            if ("Disponible".equalsIgnoreCase(estado)) bus.marcarDisponible();
+            else bus.marcarNoDisponible();
+
+            JOptionPane.showMessageDialog(Ventana,
+                    "Bus registrado exitosamente\n" +
+                            "ID: " + idBus + "\n" +
+                            "Placa: " + placa + "\n" +
+                            "Capacidad máxima: " + capacidad);
+
+            mostrarBuses();
+            limpiarCamposBus();
+            refrescarCombosAsignacion();
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(Ventana, "Capacidad inválida. Revise el ComboBox.");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(Ventana, "Error al registrar bus: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private void eliminarBus() {
@@ -746,52 +923,87 @@ public class PlataformaEduRoute {
 
         if (busAEliminar != null) {
             buses.remove(busAEliminar);
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Bus eliminado exitosamente.");
+            JOptionPane.showMessageDialog(Ventana, "Bus eliminado exitosamente.");
             limpiarCamposBus();
+            refrescarCombosAsignacion();
         } else {
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Bus no encontrado.");
+            JOptionPane.showMessageDialog(Ventana, "Bus no encontrado.");
         }
     }
 
     private void limpiarCamposBus() {
         txtIdBus.setText("");
         txtPlacaBus.setText("");
-        spinCapacidadBus.setValue(5);
+        cbCapacidadBus.setSelectedIndex(0);
         cbEstadoBus.setSelectedIndex(0);
     }
 
+    private void asignarRutaABus() {
+        if (cbRutaRecorrido.getSelectedItem() == null || cbBusRecorrido.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(Ventana, "Seleccione Ruta y Bus.");
+            return;
+        }
+
+        String idRuta = cbRutaRecorrido.getSelectedItem().toString().trim();
+        String idBus = cbBusRecorrido.getSelectedItem().toString().trim();
+
+        Ruta ruta = gestorRut.buscarPorId(idRuta);
+        Bus bus = null;
+        for (Bus b : buses) if (b.getIdBus().equals(idBus)) { bus = b; break; }
+
+        if (ruta == null || bus == null) {
+            JOptionPane.showMessageDialog(Ventana, "No se encontró la Ruta o el Bus.");
+            return;
+        }
+
+        for (Map.Entry<String, String> e : rutaToBus.entrySet()) {
+            if (e.getValue().equals(idBus) && !e.getKey().equals(idRuta)) {
+                JOptionPane.showMessageDialog(Ventana, "Ese bus ya está asignado a otra ruta.");
+                return;
+            }
+        }
+
+        rutaToBus.put(idRuta, idBus);
+
+        JOptionPane.showMessageDialog(Ventana,
+                "Ruta asignada al bus\n" +
+                        "Ruta: " + ruta.getNombreRuta() + " (" + ruta.getNumeroRuta() + ")\n" +
+                        "Bus: " + bus.getIdBus() + " (" + bus.getPlaca() + ")"
+        );
+    }
 
     private void registrarConductor() {
-            try {
-                String idConductor = txtIdConductor.getText().trim();
-                String nombreConductor = txtNombreConductor.getText().trim();
+        try {
+            String idConductor = txtIdConductor.getText().trim();
+            String nombreConductor = txtNombreConductor.getText().trim();
 
-                if (idConductor.isEmpty() || nombreConductor.isEmpty()) {
-                    JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
+            if (idConductor.isEmpty() || nombreConductor.isEmpty()) {
+                JOptionPane.showMessageDialog(Ventana, "Por favor, complete todos los campos.");
+                return;
+            }
+
+            for (Conductor c : conductores) {
+                if (c.getIdConductor().equals(idConductor)) {
+                    JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un conductor con este ID.");
                     return;
                 }
-
-                // Verificar si el ID ya existe
-                for (Conductor conductor : conductores) {
-                    if (conductor.getIdConductor().equals(idConductor)) {
-                        JOptionPane.showMessageDialog(Ventana, "Error: Ya existe un conductor con este ID.");
-                        return;
-                    }
-                }
-
-                Conductor conductor = new Conductor(idConductor, nombreConductor);
-                conductores.add(conductor);
-
-                JOptionPane.showMessageDialog(Ventana, "Conductor registrado exitosamente.");
-
-                // ACTUALIZAR LISTAS
-                mostrarConductores(); // Actualiza la lista visible
-                limpiarCamposConductor(); // Limpia los campos
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar el conductor: " + ex.getMessage());
-                ex.printStackTrace();
             }
+
+            Conductor conductor = new Conductor(idConductor, nombreConductor);
+            conductores.add(conductor);
+
+            JOptionPane.showMessageDialog(Ventana, "Conductor registrado exitosamente.");
+
+            mostrarConductores();
+            refrescarCombosAsignacion();
+            limpiarCamposConductor();
+
+            txtAListaConductores.setCaretPosition(txtAListaConductores.getDocument().getLength());
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(Ventana, "Ocurrió un error al registrar el conductor: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     private void eliminarConductor() {
@@ -812,10 +1024,11 @@ public class PlataformaEduRoute {
 
         if (conductorAEliminar != null) {
             conductores.remove(conductorAEliminar);
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor eliminado exitosamente.");
+            JOptionPane.showMessageDialog(Ventana, "Conductor eliminado exitosamente.");
             limpiarCamposConductor();
+            refrescarCombosAsignacion();
         } else {
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor no encontrado.");
+            JOptionPane.showMessageDialog(Ventana, "Conductor no encontrado.");
         }
     }
 
@@ -826,145 +1039,149 @@ public class PlataformaEduRoute {
     }
 
     private void asignarConductor() {
-        String idBus = txtIdBus.getText().trim();
-        String idConductor = txtIdConductor.getText().trim();
-
-        if (idBus.isEmpty() || idConductor.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Por favor, ingrese el ID del bus y el ID del conductor.");
+        if (comboBox1.getSelectedItem() == null || comboBox2.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(Ventana, "Seleccione Bus y Conductor.");
             return;
         }
 
+        String idBus = comboBox1.getSelectedItem().toString().trim();
+        String idConductor = comboBox2.getSelectedItem().toString().trim();
+
         Bus busAsignado = null;
+        for (Bus b : buses) {
+            if (b.getIdBus().equals(idBus)) { busAsignado = b; break; }
+        }
+
         Conductor conductorAsignado = null;
+        for (Conductor c : conductores) {
+            if (c.getIdConductor().equals(idConductor)) { conductorAsignado = c; break; }
+        }
 
-        for (Bus bus : buses) {
-            if (bus.getIdBus().equals(idBus)) {
-                busAsignado = bus;
-                break;
+        if (busAsignado == null || conductorAsignado == null) {
+            JOptionPane.showMessageDialog(Ventana, "No se encontró el Bus o el Conductor.");
+            return;
+        }
+
+        for (Bus b : buses) {
+            for (Conductor c : b.listarConductores()) {
+                if (c.getIdConductor().equals(idConductor) && !b.getIdBus().equals(idBus)) {
+                    JOptionPane.showMessageDialog(Ventana,
+                            "Ese conductor ya está asignado a otro bus (" + b.getIdBus() + ").");
+                    return;
+                }
             }
         }
 
-        for (Conductor conductor : conductores) {
-            if (conductor.getIdConductor().equals(idConductor)) {
-                conductorAsignado = conductor;
-                break;
-            }
-        }
-
-        if (busAsignado != null && conductorAsignado != null) {
-            if (busAsignado.asignarConductor(conductorAsignado)) {
-                JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor asignado al bus exitosamente.");
-            } else {
-                JOptionPane.showMessageDialog(Ventana, "El bus ya tiene dos conductores asignados.");
-            }
+        if (busAsignado.asignarConductor(conductorAsignado)) {
+            JOptionPane.showMessageDialog(Ventana, "Conductor asignado al bus exitosamente.");
+            mostrarBuses();
         } else {
-            JOptionPane.showMessageDialog(Ventana, "No se encontró el bus o conductor.");
+            JOptionPane.showMessageDialog(Ventana, "No se pudo asignar: bus lleno o conductor repetido.");
         }
     }
 
     private void liberarConductor() {
-        String idBus = txtIdBus.getText().trim();
-        String idConductor = txtIdConductor.getText().trim();
-
-        if (idBus.isEmpty() || idConductor.isEmpty()) {
-            JOptionPane.showMessageDialog(Ventana, "Por favor, ingrese el ID del bus y el ID del conductor.");
+        if (comboBox1.getSelectedItem() == null || comboBox2.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(Ventana, "Seleccione Bus y Conductor.");
             return;
         }
 
+        String idBus = comboBox1.getSelectedItem().toString().trim();
+        String idConductor = comboBox2.getSelectedItem().toString().trim();
+
         Bus busAsignado = null;
-        Conductor conductorAsignado = null;
-
-        for (Bus bus : buses) {
-            if (bus.getIdBus().equals(idBus)) {
-                busAsignado = bus;
-                break;
-            }
+        for (Bus b : buses) {
+            if (b.getIdBus().equals(idBus)) { busAsignado = b; break; }
         }
 
-        for (Conductor conductor : conductores) {
-            if (conductor.getIdConductor().equals(idConductor)) {
-                conductorAsignado = conductor;
-                break;
-            }
+        if (busAsignado == null) {
+            JOptionPane.showMessageDialog(Ventana, "No se encontró el bus.");
+            return;
         }
 
-        if (busAsignado != null && conductorAsignado != null) {
-            List<Conductor> conductoresBus = busAsignado.listarConductores();
-            if (conductoresBus.contains(conductorAsignado)) {
-                conductoresBus.remove(conductorAsignado);
-                JOptionPane.showMessageDialog(Ventana, "Negocio.Conductor liberado del bus exitosamente.");
-            } else {
-                JOptionPane.showMessageDialog(Ventana, "El conductor no está asignado a este bus.");
-            }
+        if (busAsignado.removerConductor(idConductor)) {
+            JOptionPane.showMessageDialog(Ventana, "Conductor liberado del bus exitosamente.");
+            mostrarBuses();
         } else {
-            JOptionPane.showMessageDialog(Ventana, "No se encontró el bus o conductor.");
+            JOptionPane.showMessageDialog(Ventana, "Ese conductor no estaba asignado a este bus.");
         }
     }
 
-    private void iniciarRecorrido(){
-            String idRuta = cbRutaRecorrido.getSelectedItem().toString();
-            String idBus = cbBusRecorrido.getSelectedItem().toString();
-            String idConductor = cbChoferRecorrido.getSelectedItem().toString();
-
-            Ruta ruta = gestorRut.buscarPorId(idRuta);
-            Bus bus = null;
-            Conductor conductor = null;
-
-            for (Bus b : buses) {
-                if (b.getIdBus().equals(idBus)) {
-                    bus = b;
-                    break;
-                }
-            }
-
-            for (Conductor c : conductores) {
-                if (c.getIdConductor().equals(idConductor)) {
-                    conductor = c;
-                    break;
-                }
-            }
-
-            if (ruta == null || bus == null || conductor == null) {
-                JOptionPane.showMessageDialog(Ventana, "No se pudo encontrar uno de los elementos seleccionados.");
-                return;
-            }
-
-            // Crear el grafo con las paradas y rutas
-            Grafo grafo = new Grafo();
-
-            // Añadir paradas al grafo
-            for (Parada p : gestorPar.listar()) {
-                grafo.añadirParada(p);
-            }
-
-            // Añadir rutas al grafo
-            for (Ruta r : gestorRut.listarRutas()) {
-                for (int i = 0; i < r.listarParadas().size() - 1; i++) {
-                    Parada origen = r.listarParadas().get(i);
-                    Parada destino = r.listarParadas().get(i + 1);
-                    grafo.añadirRuta(origen.getIdParada(), destino.getIdParada(), destino.obtenerTiempoEstimado());
-                    // Suponemos que las rutas son bidireccionales
-                    grafo.añadirRuta(destino.getIdParada(), origen.getIdParada(), origen.obtenerTiempoEstimado());
-                }
-            }
-
-            // Calcular el camino más corto entre dos paradas
-            String paradaInicio = "P001"; // Por ejemplo, Carcelén Centro
-            String paradaDestino = "P005"; // Por ejemplo, Iñaquito
-            List<String> caminoMasCorto = grafo.calcularCaminoMasCorto(paradaInicio, paradaDestino);
-
-            // Mostrar el recorrido
-            StringBuilder recorrido = new StringBuilder("Recorrido más corto:\n");
-            for (String paradaId : caminoMasCorto) {
-                recorrido.append(paradaId).append("\n");
-            }
-
-            JOptionPane.showMessageDialog(Ventana, recorrido.toString());
+    private void iniciarRecorrido() {
+        if (cbRutaRecorrido.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(Ventana, "Seleccione una ruta.");
+            return;
         }
 
+        String idRuta = cbRutaRecorrido.getSelectedItem().toString().trim();
+        Ruta ruta = gestorRut.buscarPorId(idRuta);
 
+        if (ruta == null) {
+            JOptionPane.showMessageDialog(Ventana, "Ruta no encontrada.");
+            return;
+        }
 
-        private void pausarRecorrido() {
+        if (!rutaToBus.containsKey(idRuta)) {
+            JOptionPane.showMessageDialog(Ventana, "Esta ruta NO tiene bus asignado.");
+            return;
+        }
+
+        String idBus = rutaToBus.get(idRuta);
+
+        Bus bus = null;
+        for (Bus b : buses) if (b.getIdBus().equals(idBus)) { bus = b; break; }
+
+        if (bus == null) {
+            JOptionPane.showMessageDialog(Ventana, "El bus asignado ya no existe.");
+            return;
+        }
+
+        JOptionPane.showMessageDialog(Ventana,
+                "Iniciando recorrido\n" +
+                        "Ruta: " + ruta.getNombreRuta() + "\n" +
+                        "Bus: " + bus.getIdBus() + " (" + bus.getPlaca() + ")\n" +
+                        "Zona: " + ruta.getZona().getNombre()
+        );
+
+        Grafo grafo = new Grafo(true);
+
+        for (Parada p : gestorPar.listar()) {
+            grafo.añadirParada(p);
+        }
+
+        for (Ruta r : gestorRut.listarRutas()) {
+            List<Parada> ps = r.listarParadas();
+            for (int i = 0; i < ps.size() - 1; i++) {
+                Parada origen = ps.get(i);
+                Parada destino = ps.get(i + 1);
+                grafo.añadirRuta(origen.getIdParada(), destino.getIdParada(), destino.obtenerTiempoEstimado());
+            }
+        }
+
+        List<Parada> paradasRuta = ruta.listarParadas();
+        if (paradasRuta.size() < 2) {
+            JOptionPane.showMessageDialog(Ventana, "La ruta seleccionada no tiene suficientes paradas.");
+            return;
+        }
+
+        String paradaInicio = paradasRuta.get(0).getIdParada();
+        String paradaDestino = paradasRuta.get(paradasRuta.size() - 1).getIdParada();
+
+        Grafo.ResultadoCamino res = grafo.caminoMasCorto(paradaInicio, paradaDestino);
+
+        if (!res.existe()) {
+            JOptionPane.showMessageDialog(Ventana, "No existe camino entre las paradas seleccionadas.");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Camino más corto (costo=").append(res.getCostoTotal()).append("):\n");
+        for (String pid : res.getCamino()) sb.append(pid).append("\n");
+
+        JOptionPane.showMessageDialog(Ventana, sb.toString());
+    }
+
+    private void pausarRecorrido() {
         if (recorridoActual == null) {
             JOptionPane.showMessageDialog(Ventana, "No hay un recorrido en curso para pausar.");
             return;
@@ -980,15 +1197,13 @@ public class PlataformaEduRoute {
 
             if (respuesta == JOptionPane.YES_OPTION) {
                 String motivo = JOptionPane.showInputDialog(Ventana, "Ingrese el motivo de la pausa (opcional):");
-
                 if (motivo == null) motivo = "Pausa manual del usuario";
                 if (motivo.trim().isEmpty()) motivo = "Sin motivo especificado";
 
-                recorridoActual.getEventos().add("PAUSA: " + motivo);
+                recorridoActual.agregarEvento("PAUSA: " + motivo);
 
                 JOptionPane.showMessageDialog(Ventana, "El recorrido ha sido pausado.\nEstado: " + recorridoActual.getEstado());
 
-                btnPausar.setEnabled(false);
                 btnIniciarRecorrido.setText("Reanudar");
                 btnIniciarRecorrido.setEnabled(true);
             }
@@ -1039,13 +1254,11 @@ public class PlataformaEduRoute {
                     "Eventos: " + recorridoActual.getEventos().size();
 
             JOptionPane.showMessageDialog(Ventana, reporte);
-            JOptionPane.showMessageDialog(Ventana, "Negocio.Recorrido finalizado con éxito.");
+            JOptionPane.showMessageDialog(Ventana, "Recorrido finalizado con éxito.");
 
             recorridoActual = null;
 
             btnIniciarRecorrido.setEnabled(true);
-            btnFinalizar.setEnabled(false);
-            btnPausar.setEnabled(false);
 
         } catch (NullPointerException ex) {
             JOptionPane.showMessageDialog(Ventana, "Error de datos: Objeto nulo.");
@@ -1054,242 +1267,187 @@ public class PlataformaEduRoute {
         }
     }
 
-    private void mostrarEstudiantes(){
-            // Obtener la lista de estudiantes registrados
-            List<Estudiante> estudiantes = gestorEst.listarEstudiante();
+    private void mostrarEstudiantes() {
+        List<Estudiante> estudiantes = gestorEst.listarEstudiante();
 
-            // Verifica si la lista está vacía
-            if (estudiantes.isEmpty()) {
-                txtAMostrarEstudiantes.setText("No hay estudiantes registrados.");
-                return;
-            }
-
-            // Crear un StringBuilder para mostrar los estudiantes en un formato adecuado
-            StringBuilder sb = new StringBuilder();
-            sb.append("══════════════════════════════════════════════════════════\n");
-            sb.append("                 LISTA DE ESTUDIANTES                    \n");
-            sb.append("══════════════════════════════════════════════════════════\n");
-            sb.append("Total de estudiantes: ").append(estudiantes.size()).append("\n\n");
-
-            int altaPrioridad = 0;
-            int mediaPrioridad = 0;
-            int bajaPrioridad = 0;
-            int sinRuta = 0;
-            int sinParada = 0;
-
-            for (Estudiante estudiante : estudiantes) {
-                // Estadísticas de prioridad
-                if ("Alta".equalsIgnoreCase(estudiante.getPrioridad())) {
-                    altaPrioridad++;
-                } else if ("Media".equalsIgnoreCase(estudiante.getPrioridad())) {
-                    mediaPrioridad++;
-                } else if ("Baja".equalsIgnoreCase(estudiante.getPrioridad())) {
-                    bajaPrioridad++;
-                }
-
-                // Estadísticas de asignación
-                if (estudiante.getNumeroRuta() == null || estudiante.getNumeroRuta().isEmpty()) {
-                    sinRuta++;
-                }
-                if (estudiante.obtenerParada() == null) {
-                    sinParada++;
-                }
-
-                // Información detallada de cada estudiante
-                sb.append("══════════════════════════════════════════════════════════\n");
-                sb.append("ID: ").append(estudiante.getIdEst()).append("\n");
-                sb.append("Nombre: ").append(estudiante.getNombre()).append("\n");
-                sb.append("Curso: ").append(estudiante.getCurso()).append("\n");
-                sb.append("Dirección: ").append(estudiante.getDireccion()).append("\n");
-                sb.append("Prioridad: ").append(estudiante.getPrioridad()).append("\n");
-
-                // Información de asignación
-                String ruta = (estudiante.getNumeroRuta() != null && !estudiante.getNumeroRuta().isEmpty())
-                        ? estudiante.getNumeroRuta() : "No asignada";
-                String zona = (estudiante.getZona() != null && !estudiante.getZona().isEmpty())
-                        ? estudiante.getZona() : "Sin zona";
-                String sector = (estudiante.getSector() != null && !estudiante.getSector().isEmpty())
-                        ? estudiante.getSector() : "Sin sector";
-                String parada = (estudiante.obtenerParada() != null)
-                        ? estudiante.obtenerParada().getNombreParada() : "No asignada";
-
-                sb.append("Ruta: ").append(ruta).append(" (Zona: ").append(zona).append(", Sector: ").append(sector).append(")\n");
-                sb.append("Parada: ").append(parada).append("\n");
-
-                // Estado de asistencia
-                sb.append("Estado: ").append(estudiante.isAusente() ? "AUSENTE" : "PRESENTE").append("\n");
-                sb.append("══════════════════════════════════════════════════════════\n\n");
-            }
-
-            // Agregar estadísticas al final
-            sb.append("\n══════════════════════════════════════════════════════════\n");
-            sb.append("                  ESTADÍSTICAS                            \n");
-            sb.append("══════════════════════════════════════════════════════════\n");
-            sb.append("Prioridades:\n");
-            sb.append("   • Alta: ").append(altaPrioridad).append(" estudiantes\n");
-            sb.append("   • Media: ").append(mediaPrioridad).append(" estudiantes\n");
-            sb.append("   • Baja: ").append(bajaPrioridad).append(" estudiantes\n\n");
-
-            sb.append("Asignaciones pendientes:\n");
-            sb.append("   • Sin ruta: ").append(sinRuta).append(" estudiantes\n");
-            sb.append("   • Sin parada: ").append(sinParada).append(" estudiantes\n");
-            sb.append("══════════════════════════════════════════════════════════\n");
-
-            // Establecer el texto en el área de texto
-            txtAMostrarEstudiantes.setText(sb.toString());
-
-            // Opcional: Habilitar scroll y formato
-            txtAMostrarEstudiantes.setCaretPosition(0); // Ir al inicio
+        if (estudiantes.isEmpty()) {
+            txtAMostrarEstudiantes.setText("No hay estudiantes registrados.");
+            return;
         }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("                 LISTA DE ESTUDIANTES                    \n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("Total de estudiantes: ").append(estudiantes.size()).append("\n\n");
+
+        int altaPrioridad = 0;
+        int mediaPrioridad = 0;
+        int bajaPrioridad = 0;
+        int sinRuta = 0;
+        int sinParada = 0;
+
+        for (Estudiante estudiante : estudiantes) {
+            if ("Alta".equalsIgnoreCase(estudiante.getPrioridad())) {
+                altaPrioridad++;
+            } else if ("Media".equalsIgnoreCase(estudiante.getPrioridad())) {
+                mediaPrioridad++;
+            } else if ("Baja".equalsIgnoreCase(estudiante.getPrioridad())) {
+                bajaPrioridad++;
+            }
+
+            if (estudiante.getNumeroRuta() == null || estudiante.getNumeroRuta().isEmpty()) {
+                sinRuta++;
+            }
+            if (estudiante.obtenerParada() == null) {
+                sinParada++;
+            }
+
+            sb.append("══════════════════════════════════════════════════════════\n");
+            sb.append("ID: ").append(estudiante.getIdEst()).append("\n");
+            sb.append("Nombre: ").append(estudiante.getNombre()).append("\n");
+            sb.append("Curso: ").append(estudiante.getCurso()).append("\n");
+            sb.append("Dirección: ").append(estudiante.getDireccion()).append("\n");
+            sb.append("Prioridad: ").append(estudiante.getPrioridad()).append("\n");
+
+            String ruta = (estudiante.getNumeroRuta() != null && !estudiante.getNumeroRuta().isEmpty())
+                    ? estudiante.getNumeroRuta() : "No asignada";
+            String zona = (estudiante.getZona() != null && !estudiante.getZona().isEmpty())
+                    ? estudiante.getZona() : "Sin zona";
+            String sector = (estudiante.getSector() != null && !estudiante.getSector().isEmpty())
+                    ? estudiante.getSector() : "Sin sector";
+            String parada = (estudiante.obtenerParada() != null)
+                    ? estudiante.obtenerParada().getNombreParada() : "No asignada";
+
+            sb.append("Ruta: ").append(ruta).append(" (Zona: ").append(zona).append(", Sector: ").append(sector).append(")\n");
+            sb.append("Parada: ").append(parada).append("\n");
+
+            sb.append("Estado: ").append(estudiante.isAusente() ? "AUSENTE" : "PRESENTE").append("\n");
+            sb.append("══════════════════════════════════════════════════════════\n\n");
+        }
+
+        sb.append("\n══════════════════════════════════════════════════════════\n");
+        sb.append("                  ESTADÍSTICAS                            \n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+        sb.append("Prioridades:\n");
+        sb.append("   • Alta: ").append(altaPrioridad).append(" estudiantes\n");
+        sb.append("   • Media: ").append(mediaPrioridad).append(" estudiantes\n");
+        sb.append("   • Baja: ").append(bajaPrioridad).append(" estudiantes\n\n");
+
+        sb.append("Asignaciones pendientes:\n");
+        sb.append("   • Sin ruta: ").append(sinRuta).append(" estudiantes\n");
+        sb.append("   • Sin parada: ").append(sinParada).append(" estudiantes\n");
+        sb.append("══════════════════════════════════════════════════════════\n");
+
+        txtAMostrarEstudiantes.setText(sb.toString());
+        txtAMostrarEstudiantes.setCaretPosition(0);
+    }
 
     private void mostrarBuses() {
-            if (buses.isEmpty()) {
-                txtAListaBuses.setText("No hay buses registrados.");
-                return;
-            }
+        if (buses.isEmpty()) {
+            txtAListaBuses.setText("No hay buses registrados.");
+            return;
+        }
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("=== LISTA DE BUSES ===\n\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== LISTA DE BUSES ===\n\n");
 
-            for (Bus bus : buses) {
-                sb.append("Bus ID: ").append(bus.getIdBus()).append("\n");
-                sb.append("Placa: ").append(bus.getPlaca()).append("\n");
+        for (Bus bus : buses) {
+            sb.append("Bus ID: ").append(bus.getIdBus()).append("\n");
+            sb.append("Placa: ").append(bus.getPlaca()).append("\n");
+            sb.append("Capacidad: ").append(bus.getCapacidadMax()).append(" estudiantes\n");
+            sb.append("Estado: ").append(bus.estadoDisponible() ? "DISPONIBLE" : "NO DISPONIBLE").append("\n");
 
-                // MOSTRAR CAPACIDAD CORRECTAMENTE
-                sb.append("Capacidad máxima: ").append(bus.getCapacidadMax()).append(" estudiantes\n");
-                sb.append("Estudiantes actuales: ").append(bus.getCapacidadActual()).append("\n");
-
-                // Mostrar porcentaje de ocupación
-                int porcentaje = (bus.getCapacidadActual() * 100) / bus.getCapacidadMax();
-                sb.append("Ocupación: ").append(porcentaje).append("%\n");
-
-                sb.append("Estado: ").append(bus.estadoDisponible() ? "DISPONIBLE" : "NO DISPONIBLE").append("\n");
-
-                // Conductores
-                List<Conductor> conductoresBus = bus.listarConductores();
-                sb.append("Conductores: ").append(conductoresBus.size()).append("/2\n");
-
-                if (!conductoresBus.isEmpty()) {
-                    for (Conductor conductor : conductoresBus) {
-                        sb.append("  • ").append(conductor.getNombreConductor())
-                                .append(" (").append(conductor.getIdConductor()).append(")\n");
-                    }
+            List<Conductor> conductoresBus = bus.listarConductores();
+            if (!conductoresBus.isEmpty()) {
+                sb.append("Conductores: ");
+                for (int i = 0; i < conductoresBus.size(); i++) {
+                    sb.append(conductoresBus.get(i).getNombreConductor());
+                    if (i < conductoresBus.size() - 1) sb.append(", ");
                 }
-
-                sb.append("-------------------\n\n");
+                sb.append("\n");
+            } else {
+                sb.append("Conductores: Ninguno asignado\n");
             }
 
-            txtAListaBuses.setText(sb.toString());
+            sb.append("-------------------\n\n");
         }
 
+        txtAListaBuses.setText(sb.toString());
+    }
 
-        private void mostrarParadas() {
-            List<Parada> paradas = gestorPar.listar();
+    private void mostrarParadas() {
+        List<Parada> paradas = gestorPar.listar();
 
-            if (paradas.isEmpty()) {
-                txtAListaParadas.setText("No hay paradas registradas.");
-                return;
-            }
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("=== LISTA DE PARADAS ===\n\n");
-
-            for (Parada parada : paradas) {
-                sb.append("ID: ").append(parada.getIdParada()).append("\n");
-                sb.append("Nombre: ").append(parada.getNombreParada()).append("\n");
-                sb.append("Ubicación: ").append(parada.getUbicacion()).append("\n");
-                sb.append("Estudiantes asignados: ").append(parada.listarEstudiantes().size()).append("\n");
-                sb.append("-------------------\n\n");
-            }
-
-            txtAListaParadas.setText(sb.toString());
-
+        if (paradas.isEmpty()) {
+            txtAListaParadas.setText("No hay paradas registradas.");
+            return;
         }
 
-        private int contarTotalEstudiantesEnBuses() {
-            int total = 0;
-            for (Bus bus : buses) {
-                total += bus.listarEstudiantes().size();
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== LISTA DE PARADAS ===\n\n");
+
+        for (Parada parada : paradas) {
+            sb.append("ID: ").append(parada.getIdParada()).append("\n");
+            sb.append("Nombre: ").append(parada.getNombreParada()).append("\n");
+            sb.append("Ubicación: ").append(parada.getUbicacion()).append("\n");
+            sb.append("Sector: ").append(parada.getSector()).append("\n");
+            sb.append("Tiempo estimado: ").append(parada.getTiempoEstimado()).append(" min\n");
+            sb.append("Estudiantes asignados: ").append(parada.listarEstudiantes().size()).append("\n");
+
+            // Mostrar ruta asignada si existe
+            if (parada.getRutaAsignada() != null) {
+                sb.append("Ruta asignada: ").append(parada.getRutaAsignada().getNumeroRuta())
+                        .append(" - ").append(parada.getRutaAsignada().getNombreRuta())
+                        .append(" (").append(parada.getRutaAsignada().getZona().getNombre()).append(")\n");
             }
-            return total;
+
+            sb.append("-------------------\n\n");
         }
 
+        txtAListaParadas.setText(sb.toString());
+    }
 
+    private int contarTotalEstudiantesEnBuses() {
+        int total = 0;
+        for (Bus bus : buses) {
+            total += bus.listarEstudiantes().size();
+        }
+        return total;
+    }
 
     private void mostrarConductores() {
-            // Verifica si la lista está vacía
-            if (conductores.isEmpty()) {
-                txtAListaConductores.setText("No hay conductores registrados.");
-                return;
-            }
-
-            // Crear un StringBuilder para mostrar los conductores
-            StringBuilder sb = new StringBuilder();
-            sb.append("══════════════════════════════════════════════════════════\n");
-            sb.append("                LISTA DE CONDUCTORES                     \n");
-            sb.append("══════════════════════════════════════════════════════════\n");
-            sb.append("Total de conductores: ").append(conductores.size()).append("\n\n");
-
-            // Contadores para estadísticas
-            int disponibles = 0;
-            int ocupados = 0;
-            int asignadosABus = 0;
-
-            for (Conductor conductor : conductores) {
-                // Verificar si está asignado a algún bus
-                boolean asignado = estaAsignadoABus(conductor);
-
-                // Estadísticas
-                if (conductor.isDisponible()) {
-                    disponibles++;
-                } else {
-                    ocupados++;
-                }
-
-                if (asignado) {
-                    asignadosABus++;
-                }
-
-                // Información detallada de cada conductor
-                sb.append("══════════════════════════════════════════════════════════\n");
-                sb.append("ID Conductor: ").append(conductor.getIdConductor()).append("\n");
-                sb.append("Nombre: ").append(conductor.getNombreConductor()).append("\n");
-                sb.append("Estado: ").append(conductor.isDisponible() ? "DISPONIBLE" : "OCUPADO").append("\n");
-
-                // Mostrar información de asignación
-                if (asignado) {
-                    Bus busAsignado = obtenerBusDeConductor(conductor);
-                    if (busAsignado != null) {
-                        sb.append("Asignación: ASIGNADO\n");
-                        sb.append("   • Bus: ").append(busAsignado.getIdBus())
-                                .append(" (").append(busAsignado.getPlaca()).append(")\n");
-                        sb.append("   • Estudiantes en bus: ").append(busAsignado.getCapacidadActual()).append("/5\n");
-                    }
-                } else {
-                    sb.append("Asignación: SIN ASIGNAR\n");
-                }
-                sb.append("══════════════════════════════════════════════════════════\n\n");
-            }
-
-            // Agregar estadísticas al final
-            sb.append("\n══════════════════════════════════════════════════════════\n");
-            sb.append("                ESTADÍSTICAS DE CONDUCTORES              \n");
-            sb.append("══════════════════════════════════════════════════════════\n");
-            sb.append("Disponibilidad:\n");
-            sb.append("   • Disponibles: ").append(disponibles).append(" conductores\n");
-            sb.append("   • Ocupados: ").append(ocupados).append(" conductores\n\n");
-
-            sb.append("Asignación:\n");
-            sb.append("   • Asignados a buses: ").append(asignadosABus).append(" conductores\n");
-            sb.append("   • Sin asignar: ").append(conductores.size() - asignadosABus).append(" conductores\n");
-            sb.append("   • Ratio conductores/buses: ").append(String.format("%.1f", (double)conductores.size()/buses.size())).append("\n");
-            sb.append("══════════════════════════════════════════════════════════\n");
-
-            // Establecer el texto en el área de texto
-            txtAListaConductores.setText(sb.toString());
-            txtAListaConductores.setCaretPosition(0);
+        if (conductores.isEmpty()) {
+            txtAListaConductores.setText("No hay conductores registrados.");
+            return;
         }
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("══════════════════════════════════════════════\n");
+        sb.append("           LISTA DE CONDUCTORES              \n");
+        sb.append("══════════════════════════════════════════════\n\n");
+
+        for (Conductor conductor : conductores) {
+            sb.append("ID Conductor: ").append(conductor.getIdConductor()).append("\n");
+            sb.append("Nombre: ").append(conductor.getNombreConductor()).append("\n");
+            sb.append("Estado: ")
+                    .append(conductor.isDisponible() ? "DISPONIBLE" : "OCUPADO")
+                    .append("\n");
+
+            Bus busAsignado = obtenerBusDeConductor(conductor);
+            if (busAsignado != null) {
+                sb.append("Asignado al bus: ").append(busAsignado.getIdBus())
+                        .append(" (").append(busAsignado.getPlaca()).append(")\n");
+            } else {
+                sb.append("Asignado a bus: Ninguno\n");
+            }
+
+            sb.append("══════════════════════════════════════════════\n\n");
+        }
+
+        txtAListaConductores.setText(sb.toString());
+        txtAListaConductores.setCaretPosition(0);
+    }
 
     private boolean estaAsignadoABus(Conductor conductor) {
         for (Bus bus : buses) {
@@ -1313,15 +1471,12 @@ public class PlataformaEduRoute {
         return null;
     }
 
-
-
-        public static void main(String[] args) {
+    public static void main(String[] args) {
         JFrame frame = new JFrame("PlataformaEduRoute");
         frame.setContentPane(new PlataformaEduRoute().Ventana);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-        frame.setSize(800, 800);
+        frame.setSize(900, 800);
     }
 }
-

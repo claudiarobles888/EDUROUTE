@@ -1,9 +1,10 @@
 package Estructura;
+
 import Negocio.*;
 
 public class PlanificadorRecorrido {
-    // Estructura de Cola Manual (FIFO)
-    private class NodoCola {
+
+    private static class NodoCola {
         Estudiante dato;
         NodoCola siguiente;
         NodoCola(Estudiante e) { this.dato = e; }
@@ -12,6 +13,7 @@ public class PlanificadorRecorrido {
     private NodoCola frente, fin;
 
     private void encolar(Estudiante e) {
+        if (e == null) return;
         NodoCola nuevo = new NodoCola(e);
         if (fin != null) fin.siguiente = nuevo;
         fin = nuevo;
@@ -27,7 +29,16 @@ public class PlanificadorRecorrido {
     }
 
     public void simularVuelta(Recorrido rec, Bus bus, Ruta ruta, Parada parada) {
-        // Aquí la lógica usa la cola para procesar estudiantes
         System.out.println("Procesando abordaje con Cola Manual FIFO...");
+
+        if (bus == null) return;
+        for (Estudiante e : bus.listarEstudiantes()) {
+            encolar(e);
+        }
+
+        Estudiante actual;
+        while ((actual = desencolar()) != null) {
+
+        }
     }
 }

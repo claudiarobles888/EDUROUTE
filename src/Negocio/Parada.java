@@ -4,52 +4,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Parada {
-private String idParada;
-private String nombreParada;
-private int tiempoEstimado;
-private String ubicacion;
-private List<Estudiante> estudiantes;
+    private String idParada;
+    private String nombre;
+    private int tiempoEstimado;
+    private String ubicacion;
+    private String sector;
+    private List<Estudiante> estudiantes;
+    private Ruta rutaAsignada;
 
-    public Parada(String idParada, String nombreParada, int tiempoEstimado, String ubicacion) {
+    public Parada(String idParada, String nombre, int tiempoEstimado, String ubicacion, String sector) {
         this.idParada = idParada;
-        this.nombreParada = nombreParada;
+        this.nombre = nombre;
         this.tiempoEstimado = tiempoEstimado;
         this.ubicacion = ubicacion;
+        this.sector = sector;
         this.estudiantes = new ArrayList<>();
+        this.rutaAsignada = null;
     }
 
-    public void agregarEstudiante(Estudiante e){
-        if(!estudiantes.contains(e)){
-            estudiantes.add(e);
-            e.asignarParada(this);
-        }
+    public void agregarEstudiante(Estudiante estudiante) {
+        estudiantes.add(estudiante);
     }
 
-    public void eliminarEstudiante(String idEstudiante){
-        estudiantes.removeIf(e -> e.getIdEst().equals(idEstudiante));
+    public void eliminarEstudiante(String idEstudiante) {
+        estudiantes.removeIf(e -> e.getIdEstudiante().equals(idEstudiante));
     }
 
-    public List<Estudiante> listarEstudiantes(){
+    public List<Estudiante> listarEstudiantes() {
         return new ArrayList<>(estudiantes);
     }
 
-    public int obtenerTiempoEstimado(){
+    public int obtenerTiempoEstimado() {
         return tiempoEstimado;
     }
+
+    
     public String getIdParada() {
         return idParada;
     }
 
-    public void setIdParada(String idParada) {
-        this.idParada = idParada;
-    }
-
     public String getNombreParada() {
-        return nombreParada;
+        return nombre;
     }
 
-    public void setNombreParada(String nombreParada) {
-        this.nombreParada = nombreParada;
+    public void setNombreParada(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getTiempoEstimado() {
+        return tiempoEstimado;
+    }
+
+    public void setTiempoEstimado(int tiempoEstimado) {
+        this.tiempoEstimado = tiempoEstimado;
     }
 
     public String getUbicacion() {
@@ -60,13 +67,27 @@ private List<Estudiante> estudiantes;
         this.ubicacion = ubicacion;
     }
 
+
+    public String getSector() {
+        return sector;
+    }
+
+    public void setSector(String sector) {
+        this.sector = sector;
+    }
+
+
+    public Ruta getRutaAsignada() {
+        return rutaAsignada;
+    }
+
+    public void setRutaAsignada(Ruta rutaAsignada) {
+        this.rutaAsignada = rutaAsignada;
+    }
+
     @Override
     public String toString() {
-        return "Negocio.Parada" +
-                "\nidParada=" + idParada +
-                "\nnombreParada=" + nombreParada +
-                "\ntiempoEstimado=" + tiempoEstimado +
-                "\nubicacion=" + ubicacion +
-                "\nestudiantes=" + estudiantes.size();
+        return String.format("%s - %s (Sector: %s, Ubicación: %s, Tiempo: %d min)",
+                idParada, nombre, sector, ubicacion, tiempoEstimado);
     }
 }
